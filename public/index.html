@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Fixed Marked.js CDN URL -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -41,11 +43,10 @@
       color: #f4f4f5;
       font-family: 'Plus Jakarta Sans', sans-serif;
       overflow: hidden;
-      height: 100dvh; /* Dynamic viewport height for mobile browsers */
+      height: 100dvh;
       width: 100vw;
     }
 
-    /* Ambient Mesh Glow Background */
     .ambient-mesh {
       background-image:
         radial-gradient(ellipse 65% 45% at 50% -10%, rgba(253, 224, 71, 0.085), transparent 70%),
@@ -53,19 +54,16 @@
         radial-gradient(circle at 12% 85%, rgba(254, 240, 138, 0.035), transparent 45%);
     }
 
-    /* Subtle Engineering Dot Matrix */
     .bg-dot-grid {
       background-image: radial-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px);
       background-size: 24px 24px;
     }
 
-    /* Custom Scrollbars */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(253, 224, 71, 0.45); }
 
-    /* High-Craft Glass Surfaces */
     .glass-panel {
       background: rgba(12, 12, 16, 0.78);
       backdrop-filter: blur(22px);
@@ -99,22 +97,17 @@
       transform: translateY(0);
     }
 
-    /* Animations */
     @keyframes floatSlow {
       0%, 100% { transform: translateY(0px); }
       50% { transform: translateY(-5px); }
     }
-    .animate-float {
-      animation: floatSlow 4.5s ease-in-out infinite;
-    }
+    .animate-float { animation: floatSlow 4.5s ease-in-out infinite; }
 
     @keyframes fadeSlideUp {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .animate-message {
-      animation: fadeSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
+    .animate-message { animation: fadeSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
     @keyframes pulseRing {
       0% { transform: scale(0.95); opacity: 0.75; }
@@ -130,17 +123,7 @@
       animation: pulseRing 1.4s infinite;
     }
 
-    @keyframes equalizerBar {
-      0%, 100% { height: 4px; }
-      50% { height: 13px; }
-    }
-    .eq-bar-1 { animation: equalizerBar 0.75s ease-in-out infinite 0s; }
-    .eq-bar-2 { animation: equalizerBar 0.75s ease-in-out infinite 0.18s; }
-    .eq-bar-3 { animation: equalizerBar 0.75s ease-in-out infinite 0.36s; }
-
-    .typing-dot {
-      animation: bounceDot 1.4s infinite ease-in-out both;
-    }
+    .typing-dot { animation: bounceDot 1.4s infinite ease-in-out both; }
     .typing-dot:nth-child(1) { animation-delay: -0.32s; }
     .typing-dot:nth-child(2) { animation-delay: -0.16s; }
     @keyframes bounceDot {
@@ -148,14 +131,60 @@
       40% { transform: scale(1); opacity: 1; }
     }
 
+    /* Clean Typography & Markdown Sequence Styling */
+    .prose-nico {
+      color: #f4f4f5;
+      line-height: 1.7;
+    }
+    .prose-nico h1, .prose-nico h2, .prose-nico h3, .prose-nico h4 {
+      color: #ffffff;
+      font-weight: 700;
+      margin-top: 1.1em;
+      margin-bottom: 0.45em;
+    }
+    .prose-nico h1:first-child, .prose-nico h2:first-child, .prose-nico h3:first-child {
+      margin-top: 0;
+    }
+    .prose-nico h1 { font-size: 1.25rem; color: #fde047; }
+    .prose-nico h2 { font-size: 1.12rem; color: #fde047; }
+    .prose-nico h3 { font-size: 1.02rem; color: #fef08a; }
+    .prose-nico p { margin-bottom: 0.75em; }
+    .prose-nico p:last-child { margin-bottom: 0; }
+    .prose-nico ul, .prose-nico ol {
+      margin-left: 1.35rem;
+      margin-bottom: 0.85em;
+    }
+    .prose-nico ul { list-style-type: disc; }
+    .prose-nico ol { list-style-type: decimal; }
+    .prose-nico li { margin-bottom: 0.4em; padding-left: 0.2em; }
+    .prose-nico strong { color: #ffffff; font-weight: 600; }
+    .prose-nico code {
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 0.15rem 0.35rem;
+      border-radius: 0.35rem;
+      font-size: 0.85em;
+      color: #fef08a;
+    }
     .prose-nico pre {
       background: #07070a;
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 0.875rem;
       overflow-x: auto;
+      padding: 1rem;
+      margin: 1em 0;
     }
-    .prose-nico code {
-      font-family: 'JetBrains Mono', monospace;
+    .prose-nico pre code {
+      background: transparent;
+      padding: 0;
+      color: #e4e4e7;
+    }
+    .prose-nico blockquote {
+      border-left: 3px solid #fde047;
+      padding-left: 1rem;
+      margin: 1em 0;
+      color: #d4d4d8;
+      font-style: italic;
     }
   </style>
 </head>
@@ -351,7 +380,6 @@
       <!-- Refined Bento Welcome Hero -->
       <div id="welcomeScreen" class="max-w-2xl mx-auto pt-4 sm:pt-12 pb-6 space-y-8 animate-message">
         <div class="text-center space-y-4">
-          <!-- Animated Geometric Emblem with Halo -->
           <div class="relative w-20 h-20 mx-auto animate-float">
             <div class="absolute inset-0 rounded-3xl bg-accent/20 blur-xl"></div>
             <div class="relative w-full h-full rounded-3xl bg-gradient-to-b from-elevated to-surface border border-accent/40 flex items-center justify-center text-accent shadow-glow-md">
@@ -378,7 +406,6 @@
           </div>
         </div>
 
-        <!-- 2x2 Bento Starter Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-left">
           <button onclick="useStarterPrompt('Build a responsive dark-mode portfolio landing page in HTML and Tailwind CSS')" class="p-4 rounded-2xl glass-card hover:border-accent/45 hover:shadow-glow-sm transition-all duration-200 group flex flex-col justify-between gap-3">
             <div class="flex items-center justify-between">
@@ -455,7 +482,6 @@
     <div class="px-3 sm:px-6 pb-4 pt-2 bg-gradient-to-t from-obsidian via-obsidian/95 to-transparent z-20 shrink-0">
       <div class="max-w-3xl mx-auto space-y-2.5">
 
-        <!-- Contextual Attachment Limit Alert (Hidden by default until exceeded) -->
         <div id="limitAlertBanner" class="hidden px-4 py-2.5 rounded-2xl glass-yellow flex items-center justify-between gap-3 text-xs shadow-glow-sm animate-message">
           <div class="flex items-center gap-2.5 text-accentSoft min-w-0">
             <svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -473,7 +499,6 @@
           </div>
         </div>
 
-        <!-- 20-Response Free Tier Cooldown Lock Banner (Hidden until 20 responses reached) -->
         <div id="cooldownBanner" class="hidden p-4 rounded-2xl glass-yellow flex flex-col sm:flex-row items-center justify-between gap-3 shadow-glow-sm animate-message">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-accent/15 border border-accent/35 flex items-center justify-center text-accent shrink-0">
@@ -494,10 +519,8 @@
           </button>
         </div>
 
-        <!-- Attached Files Preview Strip -->
         <div id="attachmentPreviewBar" class="hidden flex flex-wrap gap-2 px-1"></div>
 
-        <!-- Multi-Layered Glass Input Container -->
         <div id="composerBox" class="rounded-2xl glass-panel focus-within:border-accent/55 focus-within:shadow-glow-sm transition-all duration-200 p-3 shadow-panel">
           <textarea
             id="promptInput"
@@ -510,7 +533,6 @@
 
           <div class="flex flex-wrap items-center justify-between gap-2 pt-2.5 mt-1.5 border-t border-white/[0.06]">
             <div class="flex flex-wrap items-center gap-1.5">
-              <!-- Hidden File Inputs -->
               <input type="file" id="pdfFileInput" accept="application/pdf" multiple class="hidden" onchange="handleFileUpload(event, 'pdf')" />
               <input type="file" id="imageFileInput" accept="image/*" multiple class="hidden" onchange="handleFileUpload(event, 'image')" />
 
@@ -548,7 +570,7 @@
     </div>
   </main>
 
-  <!-- Pricing & Checkout Modal -->
+  <!-- Pricing Modal -->
   <div id="pricingModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 overflow-y-auto">
     <div class="w-full max-w-2xl rounded-3xl glass-panel p-6 sm:p-8 space-y-6 shadow-panel my-auto animate-message max-h-[90dvh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-white/[0.07] pb-4">
@@ -563,25 +585,14 @@
         </button>
       </div>
 
-      <!-- Plan Cards -->
       <div id="planSelectionStep" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="p-5 rounded-2xl bg-obsidian/80 border border-white/[0.08] flex flex-col justify-between">
           <div>
             <div class="text-[11px] font-mono uppercase tracking-wider text-zinc-400">Starter Tier</div>
             <div class="text-3xl font-bold text-white mt-1.5">$0 <span class="text-xs font-normal text-zinc-500">/ forever</span></div>
             <ul class="mt-5 space-y-2.5 text-xs text-zinc-300">
-              <li class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Nico 2.0 Intelligence Model</span>
-              </li>
-              <li class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>20 responses per 30-min cycle</span>
-              </li>
-              <li class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Up to 1 PDF &amp; 3 Images per prompt</span>
-              </li>
+              <li class="flex items-center gap-2"><svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg><span>Nico 2.0 Intelligence Model</span></li>
+              <li class="flex items-center gap-2"><svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg><span>5 responses per 30-min cycle</span></li>
             </ul>
           </div>
           <button onclick="closePricingModal()" class="mt-6 w-full py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.08] text-xs font-semibold text-zinc-300">Current Plan</button>
@@ -595,25 +606,14 @@
             </div>
             <div class="text-3xl font-bold text-white mt-1.5">$19 <span class="text-xs font-normal text-zinc-400">/ month</span></div>
             <ul class="mt-5 space-y-2.5 text-xs text-zinc-200">
-              <li class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
-                <span><strong>Unlimited</strong> messages (no timer)</span>
-              </li>
-              <li class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Unlock Nico Pro 3.5 &amp; Code Expert</span>
-              </li>
-              <li class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Up to 4 PDFs &amp; 6 Images per prompt</span>
-              </li>
+              <li class="flex items-center gap-2"><svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg><span><strong>Unlimited</strong> messages</span></li>
+              <li class="flex items-center gap-2"><svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg><span>Unlock Nico Pro 3.5 &amp; Code Expert</span></li>
             </ul>
           </div>
           <button onclick="showCheckoutForm()" class="mt-6 w-full py-2.5 rounded-xl cta-yellow text-xs font-bold">Continue to Checkout</button>
         </div>
       </div>
 
-      <!-- Simulated Card Checkout -->
       <form id="checkoutFormStep" onsubmit="completeProUpgrade(event)" class="hidden space-y-4">
         <div class="p-3.5 rounded-xl bg-obsidian/90 border border-accent/30 flex items-center justify-between text-xs">
           <span class="text-zinc-200 font-medium">Nico Pro All-Access Monthly</span>
@@ -627,16 +627,6 @@
           <div>
             <label class="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5">Card Number</label>
             <input type="text" required maxlength="19" placeholder="4532 8910 4421 8890" oninput="formatCardNumber(this)" class="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/[0.1] text-xs font-mono text-white focus:outline-none focus:border-accent" />
-          </div>
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5">Expiry</label>
-              <input type="text" required maxlength="5" placeholder="09/29" class="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/[0.1] text-xs font-mono text-white focus:outline-none focus:border-accent" />
-            </div>
-            <div>
-              <label class="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5">CVC</label>
-              <input type="password" required maxlength="4" placeholder="742" class="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/[0.1] text-xs font-mono text-white focus:outline-none focus:border-accent" />
-            </div>
           </div>
         </div>
         <div class="flex items-center justify-between pt-2">
@@ -974,7 +964,7 @@
         const raw = decoder.decode(buffer);
         const matches = raw.match(/\(([^()]{3,120})\)/g) || [];
         const cleaned = matches.map(m => m.slice(1, -1)).join(' ').replace(/\s+/g, ' ').trim();
-        return cleaned ? cleaned.slice(0, 4000) : `[Attached PDF document: ${file.name}, size: ${(file.size / 1024).toFixed(1)} KB]`;
+        return cleaned ? cleaned.slice(0, 4000) : `[Attached PDF document: ${file.name}]`;
       } catch {
         return `[Attached PDF document: ${file.name}]`;
       }
@@ -1275,7 +1265,7 @@
                   <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-accent/12 text-accent border border-accent/25 font-semibold truncate">${escapeHtml(msg.model || 'Nico 2.0')}</span>
                 </div>
               </div>
-              <div class="prose-nico text-sm text-zinc-200 leading-relaxed space-y-3 break-words overflow-x-auto">
+              <div class="prose-nico text-sm text-zinc-200 leading-relaxed break-words overflow-x-auto">
                 ${formattedBody}
               </div>
               <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-white/[0.06]">
@@ -1302,17 +1292,37 @@
 
     const codeBlockStore = {};
 
+    // Safe Markdown Parser (Uses marked.js if loaded, otherwise clean built-in fallback)
+    function parseMarkdownSafe(text) {
+      if (typeof marked !== 'undefined' && typeof marked.parse === 'function') {
+        return marked.parse(text);
+      }
+      // Fallback formatter if CDN fails
+      let safe = escapeHtml(text.trim());
+      safe = safe.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      safe = safe.replace(/`([^`]+)`/g, '<code>$1</code>');
+      safe = safe.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+      safe = safe.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+      safe = safe.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+      safe = safe.replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1</li>');
+      safe = safe.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>');
+      safe = safe.replace(/\n\n+/g, '</p><p>');
+      safe = safe.replace(/\n/g, '<br>');
+      return `<p>${safe}</p>`;
+    }
+
     function formatAiResponse(rawText, msgId) {
+      const safeRaw = String(rawText || '');
       const codeFenceRegex = /```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g;
       let lastIndex = 0;
       let htmlParts = [];
       let match;
       let blockIdx = 0;
 
-      while ((match = codeFenceRegex.exec(rawText)) !== null) {
-        const beforeText = rawText.slice(lastIndex, match.index);
+      while ((match = codeFenceRegex.exec(safeRaw)) !== null) {
+        const beforeText = safeRaw.slice(lastIndex, match.index);
         if (beforeText.trim()) {
-          htmlParts.push(renderInlineMarkdown(beforeText));
+          htmlParts.push(parseMarkdownSafe(beforeText));
         }
 
         const lang = (match[1] || 'txt').toLowerCase();
@@ -1349,22 +1359,12 @@
         lastIndex = codeFenceRegex.lastIndex;
       }
 
-      const remaining = rawText.slice(lastIndex);
+      const remaining = safeRaw.slice(lastIndex);
       if (remaining.trim()) {
-        htmlParts.push(renderInlineMarkdown(remaining));
+        htmlParts.push(parseMarkdownSafe(remaining));
       }
 
       return htmlParts.join('');
-    }
-
-    function renderInlineMarkdown(text) {
-      let safe = escapeHtml(text.trim());
-      safe = safe.replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>');
-      safe = safe.replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded-md bg-white/[0.07] border border-white/[0.08] text-accentSoft text-xs">$1</code>');
-      safe = safe.replace(/^### (.+)$/gm, '<h4 class="text-sm font-bold text-white pt-1.5">$1</h4>');
-      safe = safe.replace(/^## (.+)$/gm, '<h3 class="text-base font-bold text-accent pt-1.5">$1</h3>');
-      safe = safe.replace(/\n/g, '<br>');
-      return `<p>${safe}</p>`;
     }
 
     function mapLangExt(lang) {
