@@ -41,6 +41,8 @@
       color: #f4f4f5;
       font-family: 'Plus Jakarta Sans', sans-serif;
       overflow: hidden;
+      height: 100dvh; /* Dynamic viewport height for mobile browsers */
+      width: 100vw;
     }
 
     /* Ambient Mesh Glow Background */
@@ -157,7 +159,7 @@
     }
   </style>
 </head>
-<body class="h-screen w-screen flex select-none ambient-mesh">
+<body class="h-[100dvh] w-screen flex select-none ambient-mesh overflow-hidden">
 
   <!-- Mobile Sidebar Backdrop -->
   <div id="sidebarBackdrop" onclick="toggleSidebar(false)" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-30 hidden lg:hidden transition-opacity"></div>
@@ -167,7 +169,7 @@
     <div class="h-full w-full bg-[#0a0a0e]/95 lg:glass-panel lg:rounded-2xl border-r lg:border border-white/[0.07] flex flex-col shadow-panel overflow-hidden">
       
       <!-- Brand Header -->
-      <div class="px-4 py-4 border-b border-white/[0.07] flex items-center justify-between">
+      <div class="px-4 py-4 border-b border-white/[0.07] flex items-center justify-between shrink-0">
         <div class="flex items-center gap-3">
           <div class="relative w-9 h-9 rounded-xl bg-gradient-to-br from-accent/25 via-accent/10 to-transparent border border-accent/40 flex items-center justify-center text-accent shadow-glow-sm">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -192,7 +194,7 @@
       </div>
 
       <!-- Elevated New Chat CTA -->
-      <div class="p-3.5">
+      <div class="p-3.5 shrink-0">
         <button onclick="createNewChat()" class="w-full py-2.5 px-4 rounded-xl cta-yellow font-bold text-xs tracking-wide flex items-center justify-center gap-2">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
             <path d="M12 5v14M5 12h14"/>
@@ -202,16 +204,16 @@
       </div>
 
       <!-- Recent Sessions Header -->
-      <div class="px-4 pt-1 pb-2 flex items-center justify-between">
+      <div class="px-4 pt-1 pb-2 flex items-center justify-between shrink-0">
         <span class="text-[10px] font-mono font-semibold uppercase tracking-widest text-zinc-500">Recent Sessions</span>
         <span class="w-1.5 h-1.5 rounded-full bg-accent/60"></span>
       </div>
 
       <!-- Chat History List -->
-      <div id="chatHistoryList" class="flex-1 overflow-y-auto px-2.5 space-y-1"></div>
+      <div id="chatHistoryList" class="flex-1 overflow-y-auto px-2.5 space-y-1 min-h-0"></div>
 
       <!-- Sidebar Footer: Upgrade & Server Status -->
-      <div class="p-3 border-t border-white/[0.07] bg-black/25 space-y-2">
+      <div class="p-3 border-t border-white/[0.07] bg-black/25 space-y-2 shrink-0">
         <button id="upgradeSidebarBtn" onclick="openPricingModal()" class="w-full p-3 rounded-xl glass-yellow text-left hover:border-accent/50 transition group relative overflow-hidden">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-accent flex items-center gap-1.5">
@@ -246,33 +248,33 @@
   </aside>
 
   <!-- Main Workspace -->
-  <main class="flex-1 flex flex-col h-full relative min-w-0 bg-dot-grid">
+  <main class="flex-1 flex flex-col h-full relative min-w-0 bg-dot-grid overflow-hidden">
 
     <!-- Top Floating Header Bar -->
-    <header class="h-16 px-4 sm:px-6 flex items-center justify-between border-b border-white/[0.06] bg-obsidian/70 backdrop-blur-xl z-20">
-      <div class="flex items-center gap-3">
-        <button onclick="toggleSidebar(true)" aria-label="Open menu" class="lg:hidden p-2 rounded-xl bg-white/[0.04] border border-white/[0.07] text-zinc-300 hover:text-white transition">
+    <header class="h-16 px-4 sm:px-6 flex items-center justify-between border-b border-white/[0.06] bg-obsidian/70 backdrop-blur-xl z-20 shrink-0">
+      <div class="flex items-center gap-3 min-w-0">
+        <button onclick="toggleSidebar(true)" aria-label="Open menu" class="lg:hidden p-2 rounded-xl bg-white/[0.04] border border-white/[0.07] text-zinc-300 hover:text-white transition shrink-0">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M4 7h16M4 12h16M4 17h16"/>
           </svg>
         </button>
 
         <!-- Bespoke Pill Model Switcher -->
-        <div class="relative" id="modelSelectorWrapper">
-          <button onclick="toggleModelDropdown()" class="group flex items-center gap-2.5 pl-3 pr-3.5 py-1.5 rounded-full bg-surface/90 hover:bg-elevated border border-white/[0.09] hover:border-accent/40 text-xs sm:text-sm font-semibold text-white shadow-sm transition">
-            <span class="relative flex h-2 w-2">
+        <div class="relative min-w-0" id="modelSelectorWrapper">
+          <button onclick="toggleModelDropdown()" class="group flex items-center gap-2 pl-2.5 pr-3 py-1.5 rounded-full bg-surface/90 hover:bg-elevated border border-white/[0.09] hover:border-accent/40 text-xs sm:text-sm font-semibold text-white shadow-sm transition max-w-full truncate">
+            <span class="relative flex h-2 w-2 shrink-0">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-60"></span>
               <span class="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
             </span>
-            <span id="activeModelLabel">Nico 2.0</span>
-            <span id="activeModelTierPill" class="hidden sm:inline-block text-[10px] font-mono uppercase px-1.5 py-0.5 rounded-full bg-accent/12 text-accent border border-accent/25">Standard</span>
-            <svg class="w-3.5 h-3.5 text-zinc-400 group-hover:text-accent transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <span id="activeModelLabel" class="truncate">Nico 2.0</span>
+            <span id="activeModelTierPill" class="hidden sm:inline-block text-[10px] font-mono uppercase px-1.5 py-0.5 rounded-full bg-accent/12 text-accent border border-accent/25 shrink-0">Standard</span>
+            <svg class="w-3.5 h-3.5 text-zinc-400 group-hover:text-accent transition shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
               <path d="M6 9l6 6 6-6"/>
             </svg>
           </button>
 
           <!-- Model Dropdown Cards -->
-          <div id="modelDropdown" class="hidden absolute left-0 mt-2.5 w-80 rounded-2xl glass-panel shadow-panel p-2 z-50 space-y-1.5">
+          <div id="modelDropdown" class="hidden absolute left-0 mt-2.5 w-72 sm:w-80 rounded-2xl glass-panel shadow-panel p-2 z-50 space-y-1.5">
             <div class="px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest text-zinc-500">Select Intelligence Engine</div>
 
             <button onclick="selectModel('nico-2.0')" class="w-full p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-transparent hover:border-white/[0.08] text-left flex items-start justify-between transition">
@@ -328,7 +330,7 @@
       </div>
 
       <!-- Header Right Actions -->
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 shrink-0">
         <button onclick="openPricingModal()" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent/10 hover:bg-accent/20 border border-accent/30 text-accent text-xs font-semibold transition">
           <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
@@ -344,10 +346,10 @@
     </header>
 
     <!-- Scrollable Chat Feed -->
-    <div id="messagesContainer" class="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-6 select-text">
+    <div id="messagesContainer" class="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-6 select-text min-h-0">
       
       <!-- Refined Bento Welcome Hero -->
-      <div id="welcomeScreen" class="max-w-2xl mx-auto pt-6 sm:pt-12 pb-6 space-y-8 animate-message">
+      <div id="welcomeScreen" class="max-w-2xl mx-auto pt-4 sm:pt-12 pb-6 space-y-8 animate-message">
         <div class="text-center space-y-4">
           <!-- Animated Geometric Emblem with Halo -->
           <div class="relative w-20 h-20 mx-auto animate-float">
@@ -450,16 +452,16 @@
     </div>
 
     <!-- Floating Multi-Layered Composer Dock -->
-    <div class="px-3 sm:px-6 pb-4 pt-2 bg-gradient-to-t from-obsidian via-obsidian/95 to-transparent z-20">
+    <div class="px-3 sm:px-6 pb-4 pt-2 bg-gradient-to-t from-obsidian via-obsidian/95 to-transparent z-20 shrink-0">
       <div class="max-w-3xl mx-auto space-y-2.5">
 
         <!-- Contextual Attachment Limit Alert (Hidden by default until exceeded) -->
         <div id="limitAlertBanner" class="hidden px-4 py-2.5 rounded-2xl glass-yellow flex items-center justify-between gap-3 text-xs shadow-glow-sm animate-message">
-          <div class="flex items-center gap-2.5 text-accentSoft">
+          <div class="flex items-center gap-2.5 text-accentSoft min-w-0">
             <svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
-            <span id="limitAlertText" class="font-medium">Attachment limit exceeded for current tier.</span>
+            <span id="limitAlertText" class="font-medium truncate">Attachment limit exceeded for current tier.</span>
           </div>
           <div class="flex items-center gap-2 shrink-0">
             <button onclick="openPricingModal(); dismissLimitAlert();" class="px-2.5 py-1 rounded-lg bg-accent text-zinc-950 font-bold text-[11px] hover:bg-accentSoft transition">Upgrade</button>
@@ -487,7 +489,7 @@
               <div class="text-[11px] text-zinc-300 mt-0.5">Wait for the 30-minute timer to reset or upgrade for instant unlimited access.</div>
             </div>
           </div>
-          <button onclick="openPricingModal()" class="px-4 py-2 rounded-xl cta-yellow font-bold text-xs shrink-0">
+          <button onclick="openPricingModal()" class="px-4 py-2 rounded-xl cta-yellow font-bold text-xs shrink-0 w-full sm:w-auto">
             Unlock Unlimited
           </button>
         </div>
@@ -503,11 +505,11 @@
             placeholder="Message Nico AI, attach PDFs & images, or speak with voice..."
             oninput="autoResizeTextarea(this)"
             onkeydown="handleInputKeydown(event)"
-            class="w-full bg-transparent text-sm text-white placeholder-zinc-500 resize-none focus:outline-none px-1.5 py-1 max-h-40 leading-relaxed"
+            class="w-full bg-transparent text-sm text-white placeholder-zinc-500 resize-none focus:outline-none px-1.5 py-1 max-h-32 leading-relaxed"
           ></textarea>
 
-          <div class="flex items-center justify-between pt-2.5 mt-1.5 border-t border-white/[0.06]">
-            <div class="flex items-center gap-1.5">
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-2.5 mt-1.5 border-t border-white/[0.06]">
+            <div class="flex flex-wrap items-center gap-1.5">
               <!-- Hidden File Inputs -->
               <input type="file" id="pdfFileInput" accept="application/pdf" multiple class="hidden" onchange="handleFileUpload(event, 'pdf')" />
               <input type="file" id="imageFileInput" accept="image/*" multiple class="hidden" onchange="handleFileUpload(event, 'image')" />
@@ -534,7 +536,7 @@
               </button>
             </div>
 
-            <button id="sendBtn" onclick="sendMessage()" class="px-4 py-2 rounded-xl cta-yellow font-bold text-xs flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed">
+            <button id="sendBtn" onclick="sendMessage()" class="px-4 py-2 rounded-xl cta-yellow font-bold text-xs flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed ml-auto">
               <span>Send</span>
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
@@ -548,7 +550,7 @@
 
   <!-- Pricing & Checkout Modal -->
   <div id="pricingModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 overflow-y-auto">
-    <div class="w-full max-w-2xl rounded-3xl glass-panel p-6 sm:p-8 space-y-6 shadow-panel my-auto animate-message">
+    <div class="w-full max-w-2xl rounded-3xl glass-panel p-6 sm:p-8 space-y-6 shadow-panel my-auto animate-message max-h-[90dvh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-white/[0.07] pb-4">
         <div>
           <span class="text-[10px] font-mono uppercase tracking-widest text-accent">Subscription Plans</span>
@@ -646,13 +648,9 @@
   </div>
 
   <script>
-    // Welcome screen ka reference ek baar save karo, warna pehle message ke baad null ho jata hai
     const WELCOME_EL = document.getElementById('welcomeScreen');
-    console.info('Nico UI loaded: NICO_UI_V3');
+    console.info('Nico UI loaded: NICO_UI_V3_RESPONSIVE');
 
-    // ===== Backend config =====
-    // Same server se serve ho to '' rehne do. file:// se khola ho to localhost:3000 use hoga.
-    // Frontend alag host par ho to yahan backend URL likhein, e.g. 'https://nico-api.onrender.com'
     const API_BASE = location.protocol === 'file:' ? 'http://localhost:3000' : '';
 
     function getClientId() {
@@ -701,27 +699,9 @@
     const COOLDOWN_DURATION_MS = 30 * 60 * 1000;
 
     const TIER_CONFIG = {
-      'nico-2.0': {
-        label: 'Nico 2.0',
-        pill: 'Standard',
-        maxPdfs: 1,
-        maxImages: 3,
-        locked: false
-      },
-      'nico-pro-3.5': {
-        label: 'Nico Pro 3.5',
-        pill: 'Pro',
-        maxPdfs: 2,
-        maxImages: 5,
-        locked: true
-      },
-      'nico-code': {
-        label: 'Nico Code Expert',
-        pill: 'Ultra',
-        maxPdfs: 4,
-        maxImages: 6,
-        locked: true
-      }
+      'nico-2.0': { label: 'Nico 2.0', pill: 'Standard', maxPdfs: 1, maxImages: 3, locked: false },
+      'nico-pro-3.5': { label: 'Nico Pro 3.5', pill: 'Pro', maxPdfs: 2, maxImages: 5, locked: true },
+      'nico-code': { label: 'Nico Code Expert', pill: 'Ultra', maxPdfs: 4, maxImages: 6, locked: true }
     };
 
     let state = {
@@ -748,7 +728,7 @@
         setServerStatus(true);
       } catch (err) {
         setServerStatus(false);
-        showLimitAlert('Server se connect nahi ho paya. Backend chal raha hai? (' + err.message + ')');
+        showLimitAlert('Server connection failed (' + err.message + ')');
       }
       if (!TIER_CONFIG[state.activeModel] || (!state.isPro && TIER_CONFIG[state.activeModel].locked)) {
         state.activeModel = 'nico-2.0';
@@ -767,11 +747,9 @@
     }
 
     function saveState() {
-      // Chats, history, Pro, limits sab server (Supabase) par hain. Sirf model choice local hai.
       localStorage.setItem('nico_active_model', state.activeModel);
     }
 
-    // Sidebar & Session Management
     function toggleSidebar(open) {
       const sb = document.getElementById('sidebar');
       const bd = document.getElementById('sidebarBackdrop');
@@ -854,7 +832,7 @@
               </svg>
               <span class="truncate font-medium">${escapeHtml(s.title)}</span>
             </div>
-            <button onclick="deleteChat(event, '${s.id}')" aria-label="Delete session" class="opacity-0 group-hover:opacity-100 p-1 rounded-lg text-zinc-500 hover:text-accent hover:bg-white/[0.06] transition">
+            <button onclick="deleteChat(event, '${s.id}')" aria-label="Delete session" class="opacity-0 group-hover:opacity-100 p-1 rounded-lg text-zinc-500 hover:text-accent hover:bg-white/[0.06] transition shrink-0">
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M18 6L6 18M6 6l12 12"/>
               </svg>
@@ -864,7 +842,6 @@
       }).join('');
     }
 
-    // Model Selection & Pro Tier UI
     function toggleModelDropdown() {
       document.getElementById('modelDropdown').classList.toggle('hidden');
     }
@@ -914,7 +891,6 @@
       }
     }
 
-    // Attachment Limits (Hidden until user exceeds limit)
     function showLimitAlert(msg) {
       const banner = document.getElementById('limitAlertBanner');
       document.getElementById('limitAlertText').textContent = msg;
@@ -967,7 +943,6 @@
       renderAttachments();
     }
 
-    // Images ko chhota karte hain (max 1280px, JPEG) taake request Vercel ki 4.5MB limit mein rahe
     function compressImage(file, maxDim = 1280, quality = 0.8) {
       return new Promise((resolve) => {
         const reader = new FileReader();
@@ -988,14 +963,6 @@
           img.src = reader.result;
         };
         reader.onerror = () => resolve('');
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function readFileAsDataURL(file) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
         reader.readAsDataURL(file);
       });
     }
@@ -1030,7 +997,7 @@
       bar.innerHTML = state.attachments.map(att => {
         if (att.type === 'image') {
           return `
-            <div class="relative group rounded-xl overflow-hidden border border-white/15 bg-surface w-14 h-14 shadow-md">
+            <div class="relative group rounded-xl overflow-hidden border border-white/15 bg-surface w-14 h-14 shadow-md shrink-0">
               <img src="${att.dataUrl}" class="w-full h-full object-cover" />
               <button onclick="removeAttachment('${att.id}')" aria-label="Remove image" class="absolute top-1 right-1 w-4 h-4 rounded-full bg-black/80 text-white flex items-center justify-center hover:bg-accent hover:text-zinc-950 transition">
                 <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -1039,11 +1006,11 @@
           `;
         }
         return `
-          <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl glass-panel border border-accent/30 text-xs shadow-sm">
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl glass-panel border border-accent/30 text-xs shadow-sm shrink-0">
             <svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
             </svg>
-            <span class="truncate max-w-[140px] text-zinc-200 font-medium">${escapeHtml(att.name)}</span>
+            <span class="truncate max-w-[120px] text-zinc-200 font-medium">${escapeHtml(att.name)}</span>
             <button onclick="removeAttachment('${att.id}')" aria-label="Remove PDF" class="text-zinc-400 hover:text-accent transition">
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6L6 18M6 6l12 12"/></svg>
             </button>
@@ -1052,7 +1019,6 @@
       }).join('');
     }
 
-    // 20-Response Free Tier Limit & 30-Minute Countdown Timer
     function checkCooldownState() {
       if (state.isPro) {
         unlockComposer();
@@ -1114,7 +1080,6 @@
       sendBtn.disabled = false;
     }
 
-    // Backend call (AI key server par hai, DB bhi server save karta hai)
     function queryBackend(promptText, attachedItems, session) {
       return api('/chat', {
         method: 'POST',
@@ -1130,7 +1095,6 @@
       });
     }
 
-    // Sending & Rendering Messages
     function useStarterPrompt(text) {
       const input = document.getElementById('promptInput');
       input.value = text;
@@ -1147,7 +1111,7 @@
 
     function autoResizeTextarea(el) {
       el.style.height = 'auto';
-      el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+      el.style.height = Math.min(el.scrollHeight, 120) + 'px';
     }
 
     async function sendMessage() {
@@ -1255,7 +1219,7 @@
 
     function renderCurrentSession() {
       const container = document.getElementById('messagesContainer');
-      const welcome = WELCOME_EL; // stable reference (innerHTML se DOM se hat jata hai)
+      const welcome = WELCOME_EL;
       const session = getCurrentSession();
 
       if (!session || session.messages.length === 0) {
@@ -1270,23 +1234,23 @@
         if (msg.role === 'user') {
           const attHtml = (msg.attachments || []).map(a => {
             if (a.type === 'image' && a.dataUrl) {
-              return `<img src="${a.dataUrl}" class="w-24 h-24 object-cover rounded-2xl border border-white/15 shadow-md" />`;
+              return `<img src="${a.dataUrl}" class="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-2xl border border-white/15 shadow-md" />`;
             }
             return `
               <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass-panel text-xs text-zinc-200 border border-accent/25">
-                <svg class="w-3.5 h-3.5 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg class="w-3.5 h-3.5 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
                 </svg>
-                ${escapeHtml(a.name)}
+                <span class="truncate max-w-[120px]">${escapeHtml(a.name)}</span>
               </span>
             `;
           }).join('');
 
           return `
             <div class="max-w-3xl mx-auto flex justify-end animate-message">
-              <div class="max-w-[85%] sm:max-w-[78%] space-y-2">
+              <div class="max-w-[90%] sm:max-w-[78%] space-y-2">
                 ${attHtml ? `<div class="flex flex-wrap justify-end gap-2">${attHtml}</div>` : ''}
-                <div class="px-4 py-3 rounded-2xl rounded-tr-sm bg-gradient-to-br from-elevated to-surface border border-accent/35 text-zinc-100 text-sm leading-relaxed shadow-md">
+                <div class="px-4 py-3 rounded-2xl rounded-tr-sm bg-gradient-to-br from-elevated to-surface border border-accent/35 text-zinc-100 text-sm leading-relaxed shadow-md break-words">
                   ${escapeHtml(msg.text).replace(/\n/g, '<br>')}
                 </div>
               </div>
@@ -1304,25 +1268,25 @@
                 <polyline points="21 7 12 12 3 7"/>
               </svg>
             </div>
-            <div class="flex-1 min-w-0 p-4 rounded-2xl rounded-tl-sm glass-card space-y-3 shadow-sm">
+            <div class="flex-1 min-w-0 p-4 rounded-2xl rounded-tl-sm glass-card space-y-3 shadow-sm overflow-hidden">
               <div class="flex items-center justify-between border-b border-white/[0.06] pb-2">
-                <div class="flex items-center gap-2">
-                  <span class="text-xs font-bold text-white">Nico AI</span>
-                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-accent/12 text-accent border border-accent/25 font-semibold">${escapeHtml(msg.model || 'Nico 2.0')}</span>
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="text-xs font-bold text-white shrink-0">Nico AI</span>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-accent/12 text-accent border border-accent/25 font-semibold truncate">${escapeHtml(msg.model || 'Nico 2.0')}</span>
                 </div>
               </div>
-              <div class="prose-nico text-sm text-zinc-200 leading-relaxed space-y-3">
+              <div class="prose-nico text-sm text-zinc-200 leading-relaxed space-y-3 break-words overflow-x-auto">
                 ${formattedBody}
               </div>
               <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-white/[0.06]">
                 <button onclick="copyFullMessage('${msg.id}', this)" class="px-2.5 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.07] text-[11px] font-medium text-zinc-300 hover:text-white flex items-center gap-1.5 transition">
-                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                   </svg>
                   <span>Copy Response</span>
                 </button>
                 <button onclick="toggleReadAloud('${msg.id}')" id="tts-btn-${msg.id}" class="px-2.5 py-1.5 rounded-xl ${isSpeaking ? 'bg-accent/15 border-accent/40 text-accent' : 'bg-white/[0.03] hover:bg-white/[0.08] border-white/[0.07] text-zinc-300 hover:text-accent'} border text-[11px] font-medium flex items-center gap-1.5 transition">
-                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
                   </svg>
                   <span>${isSpeaking ? 'Stop Reading' : 'Read Aloud'}</span>
@@ -1336,7 +1300,6 @@
       container.scrollTop = container.scrollHeight;
     }
 
-    // Markdown, Code Copy & Downloadable File Renderer
     const codeBlockStore = {};
 
     function formatAiResponse(rawText, msgId) {
@@ -1358,28 +1321,28 @@
         codeBlockStore[blockId] = { lang, code };
 
         htmlParts.push(`
-          <div class="my-3 rounded-2xl overflow-hidden border border-white/[0.09] bg-[#07070a] shadow-lg">
-            <div class="px-4 py-2.5 bg-white/[0.03] border-b border-white/[0.07] flex items-center justify-between">
+          <div class="my-3 rounded-2xl overflow-hidden border border-white/[0.09] bg-[#07070a] shadow-lg max-w-full">
+            <div class="px-3 sm:px-4 py-2.5 bg-white/[0.03] border-b border-white/[0.07] flex flex-wrap items-center justify-between gap-2">
               <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-accent/80"></span>
                 <span class="text-[11px] font-mono uppercase tracking-wider text-accent font-semibold">${escapeHtml(lang)}</span>
               </div>
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1.5 sm:gap-2">
                 <button onclick="copyCodeBlock('${blockId}', this)" class="px-2.5 py-1 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.07] text-[11px] text-zinc-300 hover:text-white flex items-center gap-1.5 transition">
-                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                   </svg>
                   <span>Copy</span>
                 </button>
                 <button onclick="downloadCodeFile('${blockId}')" class="px-2.5 py-1 rounded-lg bg-accent/15 hover:bg-accent/25 border border-accent/35 text-[11px] font-medium text-accent flex items-center gap-1.5 transition">
-                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
                   </svg>
-                  <span>Download .${escapeHtml(mapLangExt(lang))}</span>
+                  <span>.${escapeHtml(mapLangExt(lang))}</span>
                 </button>
               </div>
             </div>
-            <pre class="p-4 text-xs text-zinc-200 overflow-x-auto leading-relaxed"><code>${escapeHtml(code)}</code></pre>
+            <pre class="p-3 sm:p-4 text-xs text-zinc-200 overflow-x-auto max-w-full leading-relaxed"><code>${escapeHtml(code)}</code></pre>
           </div>
         `);
 
@@ -1470,7 +1433,6 @@
       }
     }
 
-    // Voice Synthesis (Read Aloud) & Speech Dictation
     function toggleReadAloud(msgId) {
       if (!('speechSynthesis' in window)) return;
       const session = getCurrentSession();
@@ -1542,7 +1504,6 @@
       }
     }
 
-    // Pricing Checkout Handlers
     function openPricingModal() {
       backToPlans();
       document.getElementById('pricingModal').classList.remove('hidden');
@@ -1572,7 +1533,6 @@
     async function completeProUpgrade(e) {
       e.preventDefault();
       try {
-        // NOTE: card details server ko nahi bheji jaati. Real payment ke liye Stripe/Paddle lagayen.
         const data = await api('/upgrade', { method: 'POST' });
         applyProfile(data.profile);
         saveState();
