@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nico AI — Intelligent Multimodal Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            obsidian: '#060608',
+            surface: '#0c0c10',
+            elevated: '#14141a',
+            accent: '#fde047',
+            accentSoft: '#fef08a',
+            accentDeep: '#facc15',
+          },
+          boxShadow: {
+            'glow-sm': '0 0 18px -4px rgba(253, 224, 71, 0.25)',
+            'glow-md': '0 0 32px -6px rgba(253, 224, 71, 0.32)',
+            'panel': '0 20px 50px -15px rgba(0, 0, 0, 0.75)',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background-color: #060608;
+      color: #f4f4f5;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow: hidden;
+    }
+
+    /* Ambient Mesh Glow Background */
+    .ambient-mesh {
+      background-image:
+        radial-gradient(ellipse 65% 45% at 50% -10%, rgba(253, 224, 71, 0.085), transparent 70%),
+        radial-gradient(circle at 85% 90%, rgba(250, 204, 21, 0.045), transparent 45%),
+        radial-gradient(circle at 12% 85%, rgba(254, 240, 138, 0.035), transparent 45%);
+    }
+
+    /* Subtle Engineering Dot Matrix */
+    .bg-dot-grid {
+      background-image: radial-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(253, 224, 71, 0.45); }
+
+    /* High-Craft Glass Surfaces */
+    .glass-panel {
+      background: rgba(12, 12, 16, 0.78);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .glass-card {
+      background: linear-gradient(180deg, rgba(22, 22, 29, 0.75) 0%, rgba(14, 14, 19, 0.85) 100%);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .glass-yellow {
+      background: linear-gradient(135deg, rgba(253, 224, 71, 0.11) 0%, rgba(250, 204, 21, 0.04) 100%);
+      border: 1px solid rgba(253, 224, 71, 0.28);
+    }
+
+    .cta-yellow {
+      background: linear-gradient(135deg, #fef08a 0%, #fde047 55%, #facc15 100%);
+      color: #060608;
+      box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.55) inset, 0 8px 24px -6px rgba(253, 224, 71, 0.35);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .cta-yellow:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.7) inset, 0 12px 28px -4px rgba(253, 224, 71, 0.48);
+    }
+    .cta-yellow:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    /* Animations */
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+    }
+    .animate-float {
+      animation: floatSlow 4.5s ease-in-out infinite;
+    }
+
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-message {
+      animation: fadeSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes pulseRing {
+      0% { transform: scale(0.95); opacity: 0.75; }
+      70% { transform: scale(1.3); opacity: 0; }
+      100% { transform: scale(1.3); opacity: 0; }
+    }
+    .recording-ring::before {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 0.75rem;
+      border: 1.5px solid #fde047;
+      animation: pulseRing 1.4s infinite;
+    }
+
+    @keyframes equalizerBar {
+      0%, 100% { height: 4px; }
+      50% { height: 13px; }
+    }
+    .eq-bar-1 { animation: equalizerBar 0.75s ease-in-out infinite 0s; }
+    .eq-bar-2 { animation: equalizerBar 0.75s ease-in-out infinite 0.18s; }
+    .eq-bar-3 { animation: equalizerBar 0.75s ease-in-out infinite 0.36s; }
+
+    .typing-dot {
+      animation: bounceDot 1.4s infinite ease-in-out both;
+    }
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes bounceDot {
+      0%, 80%, 100% { transform: scale(0.4); opacity: 0.35; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    .prose-nico pre {
+      background: #07070a;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 0.875rem;
+      overflow-x: auto;
+    }
+    .prose-nico code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body class="h-screen w-screen flex select-none ambient-mesh">
+
+  <!-- Mobile Sidebar Backdrop -->
+  <div id="sidebarBackdrop" onclick="toggleSidebar(false)" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-30 hidden lg:hidden transition-opacity"></div>
+
+  <!-- Floating Glassmorphic Sidebar -->
+  <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-72 lg:w-[292px] lg:p-3 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-250 ease-out">
+    <div class="h-full w-full bg-[#0a0a0e]/95 lg:glass-panel lg:rounded-2xl border-r lg:border border-white/[0.07] flex flex-col shadow-panel overflow-hidden">
+      
+      <!-- Brand Header -->
+      <div class="px-4 py-4 border-b border-white/[0.07] flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="relative w-9 h-9 rounded-xl bg-gradient-to-br from-accent/25 via-accent/10 to-transparent border border-accent/40 flex items-center justify-center text-accent shadow-glow-sm">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 21 7 21 17 12 22 3 17 3 7 12 2"/>
+              <line x1="12" y1="22" x2="12" y2="12"/>
+              <polyline points="21 7 12 12 3 7"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-[15px] tracking-tight text-white">Nico <span class="text-accent">AI</span></span>
+              <span id="planBadge" class="text-[10px] font-mono font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-white/[0.06] text-zinc-300 border border-white/[0.08]">Free</span>
+            </div>
+            <p class="text-[11px] text-zinc-500 leading-tight mt-0.5">Multimodal Studio</p>
+          </div>
+        </div>
+        <button onclick="toggleSidebar(false)" aria-label="Close sidebar" class="lg:hidden p-1.5 rounded-xl text-zinc-400 hover:text-white hover:bg-white/[0.06] transition">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Elevated New Chat CTA -->
+      <div class="p-3.5">
+        <button onclick="createNewChat()" class="w-full py-2.5 px-4 rounded-xl cta-yellow font-bold text-xs tracking-wide flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          <span>New Conversation</span>
+        </button>
+      </div>
+
+      <!-- Recent Sessions Header -->
+      <div class="px-4 pt-1 pb-2 flex items-center justify-between">
+        <span class="text-[10px] font-mono font-semibold uppercase tracking-widest text-zinc-500">Recent Sessions</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-accent/60"></span>
+      </div>
+
+      <!-- Chat History List -->
+      <div id="chatHistoryList" class="flex-1 overflow-y-auto px-2.5 space-y-1"></div>
+
+      <!-- Sidebar Footer: Upgrade & Server Status -->
+      <div class="p-3 border-t border-white/[0.07] bg-black/25 space-y-2">
+        <button id="upgradeSidebarBtn" onclick="openPricingModal()" class="w-full p-3 rounded-xl glass-yellow text-left hover:border-accent/50 transition group relative overflow-hidden">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-accent flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+              Upgrade to Nico Pro
+            </span>
+            <span class="w-6 h-6 rounded-lg bg-accent/15 flex items-center justify-center text-accent group-hover:translate-x-0.5 transition">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </span>
+          </div>
+          <p class="text-[11px] text-zinc-400 mt-1 leading-snug">Unlimited messages, Pro 3.5 &amp; Code Expert</p>
+        </button>
+
+        <div class="w-full py-2.5 px-3 rounded-xl bg-white/[0.03] border border-white/[0.07] text-xs text-zinc-300 flex items-center justify-between">
+          <span class="flex items-center gap-2 font-medium">
+            <svg class="w-3.5 h-3.5 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="3" width="20" height="8" rx="2"/><rect x="2" y="13" width="20" height="8" rx="2"/><path d="M6 7h.01M6 17h.01"/>
+            </svg>
+            Nico Server
+          </span>
+          <span class="flex items-center gap-1.5 text-[10px] font-mono text-zinc-400">
+            <span id="apiStatusDot" class="w-2 h-2 rounded-full bg-zinc-500"></span>
+            <span id="apiStatusText">Connecting</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 flex flex-col h-full relative min-w-0 bg-dot-grid">
+
+    <!-- Top Floating Header Bar -->
+    <header class="h-16 px-4 sm:px-6 flex items-center justify-between border-b border-white/[0.06] bg-obsidian/70 backdrop-blur-xl z-20">
+      <div class="flex items-center gap-3">
+        <button onclick="toggleSidebar(true)" aria-label="Open menu" class="lg:hidden p-2 rounded-xl bg-white/[0.04] border border-white/[0.07] text-zinc-300 hover:text-white transition">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 7h16M4 12h16M4 17h16"/>
+          </svg>
+        </button>
+
+        <!-- Bespoke Pill Model Switcher -->
+        <div class="relative" id="modelSelectorWrapper">
+          <button onclick="toggleModelDropdown()" class="group flex items-center gap-2.5 pl-3 pr-3.5 py-1.5 rounded-full bg-surface/90 hover:bg-elevated border border-white/[0.09] hover:border-accent/40 text-xs sm:text-sm font-semibold text-white shadow-sm transition">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-60"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
+            </span>
+            <span id="activeModelLabel">Nico 2.0</span>
+            <span id="activeModelTierPill" class="hidden sm:inline-block text-[10px] font-mono uppercase px-1.5 py-0.5 rounded-full bg-accent/12 text-accent border border-accent/25">Standard</span>
+            <svg class="w-3.5 h-3.5 text-zinc-400 group-hover:text-accent transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M6 9l6 6 6-6"/>
+            </svg>
+          </button>
+
+          <!-- Model Dropdown Cards -->
+          <div id="modelDropdown" class="hidden absolute left-0 mt-2.5 w-80 rounded-2xl glass-panel shadow-panel p-2 z-50 space-y-1.5">
+            <div class="px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest text-zinc-500">Select Intelligence Engine</div>
+
+            <button onclick="selectModel('nico-2.0')" class="w-full p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-transparent hover:border-white/[0.08] text-left flex items-start justify-between transition">
+              <div class="space-y-0.5">
+                <div class="text-xs font-bold text-white flex items-center gap-2">
+                  Nico 2.0
+                  <span class="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-accent/15 text-accent border border-accent/30 font-semibold">FREE</span>
+                </div>
+                <p class="text-[11px] text-zinc-400 leading-snug">Rapid everyday reasoning, writing &amp; vision</p>
+              </div>
+              <svg id="check-nico-2.0" class="w-4 h-4 text-accent mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </button>
+
+            <button onclick="selectModel('nico-pro-3.5')" class="w-full p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-transparent hover:border-white/[0.08] text-left flex items-start justify-between transition">
+              <div class="space-y-0.5">
+                <div class="text-xs font-bold text-white flex items-center gap-2">
+                  Nico Pro 3.5
+                  <span id="badge-nico-pro-3.5" class="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-white/[0.06] text-zinc-300 border border-white/10 font-semibold inline-flex items-center gap-1">
+                    <svg class="w-2.5 h-2.5 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    PRO
+                  </span>
+                </div>
+                <p class="text-[11px] text-zinc-400 leading-snug">Deep synthesis, analytical reports &amp; multi-PDF</p>
+              </div>
+              <svg id="check-nico-pro-3.5" class="w-4 h-4 text-accent mt-0.5 shrink-0 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </button>
+
+            <button onclick="selectModel('nico-code')" class="w-full p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-transparent hover:border-white/[0.08] text-left flex items-start justify-between transition">
+              <div class="space-y-0.5">
+                <div class="text-xs font-bold text-white flex items-center gap-2">
+                  Nico Code Expert
+                  <span id="badge-nico-code" class="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-white/[0.06] text-zinc-300 border border-white/10 font-semibold inline-flex items-center gap-1">
+                    <svg class="w-2.5 h-2.5 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    ULTRA
+                  </span>
+                </div>
+                <p class="text-[11px] text-zinc-400 leading-snug">Full-stack architecture &amp; production code files</p>
+              </div>
+              <svg id="check-nico-code" class="w-4 h-4 text-accent mt-0.5 shrink-0 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Header Right Actions -->
+      <div class="flex items-center gap-2">
+        <button onclick="openPricingModal()" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent/10 hover:bg-accent/20 border border-accent/30 text-accent text-xs font-semibold transition">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          <span>Plans</span>
+        </button>
+        <button onclick="clearCurrentChat()" title="Clear current conversation" class="p-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.07] text-zinc-400 hover:text-white transition">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Scrollable Chat Feed -->
+    <div id="messagesContainer" class="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-6 select-text">
+      
+      <!-- Refined Bento Welcome Hero -->
+      <div id="welcomeScreen" class="max-w-2xl mx-auto pt-6 sm:pt-12 pb-6 space-y-8 animate-message">
+        <div class="text-center space-y-4">
+          <!-- Animated Geometric Emblem with Halo -->
+          <div class="relative w-20 h-20 mx-auto animate-float">
+            <div class="absolute inset-0 rounded-3xl bg-accent/20 blur-xl"></div>
+            <div class="relative w-full h-full rounded-3xl bg-gradient-to-b from-elevated to-surface border border-accent/40 flex items-center justify-center text-accent shadow-glow-md">
+              <svg class="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 21 7 21 17 12 22 3 17 3 7 12 2"/>
+                <line x1="12" y1="22" x2="12" y2="12"/>
+                <polyline points="21 7 12 12 3 7"/>
+                <circle cx="12" cy="12" r="2" fill="currentColor"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-[11px] font-mono text-zinc-300">
+              <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+              <span>NEXT-GEN MULTIMODAL INTELLIGENCE</span>
+            </div>
+            <h1 class="text-2xl sm:text-4xl font-bold text-white tracking-tight">
+              What will we build with <span class="text-transparent bg-clip-text bg-gradient-to-r from-accentSoft via-accent to-accentDeep">Nico AI</span>?
+            </h1>
+            <p class="text-xs sm:text-sm text-zinc-400 max-w-lg mx-auto leading-relaxed">
+              Upload PDFs and images for instant synthesis, generate downloadable code architectures, or interact hands-free with natural voice.
+            </p>
+          </div>
+        </div>
+
+        <!-- 2x2 Bento Starter Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-left">
+          <button onclick="useStarterPrompt('Build a responsive dark-mode portfolio landing page in HTML and Tailwind CSS')" class="p-4 rounded-2xl glass-card hover:border-accent/45 hover:shadow-glow-sm transition-all duration-200 group flex flex-col justify-between gap-3">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1.5 text-[11px] font-mono font-semibold uppercase tracking-wider text-accent">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                </svg>
+                Web Studio
+              </span>
+              <svg class="w-4 h-4 text-zinc-500 group-hover:text-accent group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
+              </svg>
+            </div>
+            <p class="text-xs sm:text-[13px] font-medium text-zinc-200 group-hover:text-white leading-snug">
+              Build a responsive dark-mode portfolio landing page in HTML &amp; Tailwind CSS
+            </p>
+          </button>
+
+          <button onclick="useStarterPrompt('Write a persuasive executive product launch announcement email')" class="p-4 rounded-2xl glass-card hover:border-accent/45 hover:shadow-glow-sm transition-all duration-200 group flex flex-col justify-between gap-3">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1.5 text-[11px] font-mono font-semibold uppercase tracking-wider text-accent">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+                Executive Draft
+              </span>
+              <svg class="w-4 h-4 text-zinc-500 group-hover:text-accent group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
+              </svg>
+            </div>
+            <p class="text-xs sm:text-[13px] font-medium text-zinc-200 group-hover:text-white leading-snug">
+              Write a persuasive executive product launch announcement email
+            </p>
+          </button>
+
+          <button onclick="useStarterPrompt('Explain REST vs GraphQL APIs with clear practical trade-offs')" class="p-4 rounded-2xl glass-card hover:border-accent/45 hover:shadow-glow-sm transition-all duration-200 group flex flex-col justify-between gap-3">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1.5 text-[11px] font-mono font-semibold uppercase tracking-wider text-accent">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/>
+                </svg>
+                Architecture
+              </span>
+              <svg class="w-4 h-4 text-zinc-500 group-hover:text-accent group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
+              </svg>
+            </div>
+            <p class="text-xs sm:text-[13px] font-medium text-zinc-200 group-hover:text-white leading-snug">
+              Explain REST vs GraphQL APIs with clear practical trade-offs
+            </p>
+          </button>
+
+          <button onclick="useStarterPrompt('Create a Python script to parse CSV sales data and output monthly totals')" class="p-4 rounded-2xl glass-card hover:border-accent/45 hover:shadow-glow-sm transition-all duration-200 group flex flex-col justify-between gap-3">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1.5 text-[11px] font-mono font-semibold uppercase tracking-wider text-accent">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+                </svg>
+                Automation
+              </span>
+              <svg class="w-4 h-4 text-zinc-500 group-hover:text-accent group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
+              </svg>
+            </div>
+            <p class="text-xs sm:text-[13px] font-medium text-zinc-200 group-hover:text-white leading-snug">
+              Create a Python script to parse CSV sales data and output monthly totals
+            </p>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Multi-Layered Composer Dock -->
+    <div class="px-3 sm:px-6 pb-4 pt-2 bg-gradient-to-t from-obsidian via-obsidian/95 to-transparent z-20">
+      <div class="max-w-3xl mx-auto space-y-2.5">
+
+        <!-- Contextual Attachment Limit Alert (Hidden by default until exceeded) -->
+        <div id="limitAlertBanner" class="hidden px-4 py-2.5 rounded-2xl glass-yellow flex items-center justify-between gap-3 text-xs shadow-glow-sm animate-message">
+          <div class="flex items-center gap-2.5 text-accentSoft">
+            <svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span id="limitAlertText" class="font-medium">Attachment limit exceeded for current tier.</span>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button onclick="openPricingModal(); dismissLimitAlert();" class="px-2.5 py-1 rounded-lg bg-accent text-zinc-950 font-bold text-[11px] hover:bg-accentSoft transition">Upgrade</button>
+            <button onclick="dismissLimitAlert()" class="text-zinc-400 hover:text-white p-1">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 20-Response Free Tier Cooldown Lock Banner (Hidden until 20 responses reached) -->
+        <div id="cooldownBanner" class="hidden p-4 rounded-2xl glass-yellow flex flex-col sm:flex-row items-center justify-between gap-3 shadow-glow-sm animate-message">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-accent/15 border border-accent/35 flex items-center justify-center text-accent shrink-0">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-white flex items-center gap-2">
+                <span>Free Tier Limit Reached (20 Responses)</span>
+                <span id="cooldownTimerDisplay" class="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-accent text-zinc-950">30:00</span>
+              </div>
+              <div class="text-[11px] text-zinc-300 mt-0.5">Wait for the 30-minute timer to reset or upgrade for instant unlimited access.</div>
+            </div>
+          </div>
+          <button onclick="openPricingModal()" class="px-4 py-2 rounded-xl cta-yellow font-bold text-xs shrink-0">
+            Unlock Unlimited
+          </button>
+        </div>
+
+        <!-- Attached Files Preview Strip -->
+        <div id="attachmentPreviewBar" class="hidden flex flex-wrap gap-2 px-1"></div>
+
+        <!-- Multi-Layered Glass Input Container -->
+        <div id="composerBox" class="rounded-2xl glass-panel focus-within:border-accent/55 focus-within:shadow-glow-sm transition-all duration-200 p-3 shadow-panel">
+          <textarea
+            id="promptInput"
+            rows="1"
+            placeholder="Message Nico AI, attach PDFs & images, or speak with voice..."
+            oninput="autoResizeTextarea(this)"
+            onkeydown="handleInputKeydown(event)"
+            class="w-full bg-transparent text-sm text-white placeholder-zinc-500 resize-none focus:outline-none px-1.5 py-1 max-h-40 leading-relaxed"
+          ></textarea>
+
+          <div class="flex items-center justify-between pt-2.5 mt-1.5 border-t border-white/[0.06]">
+            <div class="flex items-center gap-1.5">
+              <!-- Hidden File Inputs -->
+              <input type="file" id="pdfFileInput" accept="application/pdf" multiple class="hidden" onchange="handleFileUpload(event, 'pdf')" />
+              <input type="file" id="imageFileInput" accept="image/*" multiple class="hidden" onchange="handleFileUpload(event, 'image')" />
+
+              <button type="button" onclick="document.getElementById('pdfFileInput').click()" title="Attach PDF document" class="px-2.5 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] hover:border-accent/35 text-zinc-400 hover:text-accent transition flex items-center gap-1.5 text-xs font-medium">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                <span>PDF</span>
+              </button>
+
+              <button type="button" onclick="document.getElementById('imageFileInput').click()" title="Attach image" class="px-2.5 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] hover:border-accent/35 text-zinc-400 hover:text-accent transition flex items-center gap-1.5 text-xs font-medium">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                </svg>
+                <span>Image</span>
+              </button>
+
+              <button type="button" id="micBtn" onclick="toggleVoiceDictation()" title="Voice dictation" class="relative px-2.5 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] hover:border-accent/35 text-zinc-400 hover:text-accent transition flex items-center gap-1.5 text-xs font-medium">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
+                </svg>
+                <span id="micLabel">Voice</span>
+              </button>
+            </div>
+
+            <button id="sendBtn" onclick="sendMessage()" class="px-4 py-2 rounded-xl cta-yellow font-bold text-xs flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed">
+              <span>Send</span>
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Pricing & Checkout Modal -->
+  <div id="pricingModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="w-full max-w-2xl rounded-3xl glass-panel p-6 sm:p-8 space-y-6 shadow-panel my-auto animate-message">
+      <div class="flex items-center justify-between border-b border-white/[0.07] pb-4">
+        <div>
+          <span class="text-[10px] font-mono uppercase tracking-widest text-accent">Subscription Plans</span>
+          <h3 class="text-xl font-bold text-white mt-0.5">Upgrade to <span class="text-accent">Nico Pro</span></h3>
+        </div>
+        <button onclick="closePricingModal()" class="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/[0.06] transition">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Plan Cards -->
+      <div id="planSelectionStep" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="p-5 rounded-2xl bg-obsidian/80 border border-white/[0.08] flex flex-col justify-between">
+          <div>
+            <div class="text-[11px] font-mono uppercase tracking-wider text-zinc-400">Starter Tier</div>
+            <div class="text-3xl font-bold text-white mt-1.5">$0 <span class="text-xs font-normal text-zinc-500">/ forever</span></div>
+            <ul class="mt-5 space-y-2.5 text-xs text-zinc-300">
+              <li class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Nico 2.0 Intelligence Model</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>20 responses per 30-min cycle</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Up to 1 PDF &amp; 3 Images per prompt</span>
+              </li>
+            </ul>
+          </div>
+          <button onclick="closePricingModal()" class="mt-6 w-full py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.08] text-xs font-semibold text-zinc-300">Current Plan</button>
+        </div>
+
+        <div class="p-5 rounded-2xl glass-yellow flex flex-col justify-between relative shadow-glow-sm">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-mono uppercase tracking-wider text-accent font-semibold">Pro All-Access</span>
+              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-accent text-zinc-950">POPULAR</span>
+            </div>
+            <div class="text-3xl font-bold text-white mt-1.5">$19 <span class="text-xs font-normal text-zinc-400">/ month</span></div>
+            <ul class="mt-5 space-y-2.5 text-xs text-zinc-200">
+              <li class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+                <span><strong>Unlimited</strong> messages (no timer)</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Unlock Nico Pro 3.5 &amp; Code Expert</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Up to 4 PDFs &amp; 6 Images per prompt</span>
+              </li>
+            </ul>
+          </div>
+          <button onclick="showCheckoutForm()" class="mt-6 w-full py-2.5 rounded-xl cta-yellow text-xs font-bold">Continue to Checkout</button>
+        </div>
+      </div>
+
+      <!-- Simulated Card Checkout -->
+      <form id="checkoutFormStep" onsubmit="completeProUpgrade(event)" class="hidden space-y-4">
+        <div class="p-3.5 rounded-xl bg-obsidian/90 border border-accent/30 flex items-center justify-between text-xs">
+          <span class="text-zinc-200 font-medium">Nico Pro All-Access Monthly</span>
+          <span class="font-mono font-bold text-accent">$19.00 USD</span>
+        </div>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5">Cardholder Name</label>
+            <input type="text" required placeholder="Syed Anas" class="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/[0.1] text-xs text-white focus:outline-none focus:border-accent" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5">Card Number</label>
+            <input type="text" required maxlength="19" placeholder="4532 8910 4421 8890" oninput="formatCardNumber(this)" class="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/[0.1] text-xs font-mono text-white focus:outline-none focus:border-accent" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5">Expiry</label>
+              <input type="text" required maxlength="5" placeholder="09/29" class="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/[0.1] text-xs font-mono text-white focus:outline-none focus:border-accent" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5">CVC</label>
+              <input type="password" required maxlength="4" placeholder="742" class="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/[0.1] text-xs font-mono text-white focus:outline-none focus:border-accent" />
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center justify-between pt-2">
+          <button type="button" onclick="backToPlans()" class="px-3 py-2 rounded-xl text-xs text-zinc-400 hover:text-white transition">Back to Plans</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl cta-yellow font-bold text-xs">Pay $19 &amp; Unlock Pro</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Welcome screen ka reference ek baar save karo, warna pehle message ke baad null ho jata hai
+    const WELCOME_EL = document.getElementById('welcomeScreen');
+    console.info('Nico UI loaded: NICO_UI_V3');
+
+    // ===== Backend config =====
+    // Same server se serve ho to '' rehne do. file:// se khola ho to localhost:3000 use hoga.
+    // Frontend alag host par ho to yahan backend URL likhein, e.g. 'https://nico-api.onrender.com'
+    const API_BASE = location.protocol === 'file:' ? 'http://localhost:3000' : '';
+
+    function getClientId() {
+      let id = localStorage.getItem('nico_client_id');
+      if (!id) {
+        id = 'u_' + crypto.randomUUID().replace(/-/g, '');
+        localStorage.setItem('nico_client_id', id);
+      }
+      return id;
+    }
+    const CLIENT_ID = getClientId();
+
+    async function api(path, options = {}) {
+      const res = await fetch(API_BASE + '/api' + path, {
+        method: options.method || 'GET',
+        headers: { 'Content-Type': 'application/json', 'x-client-id': CLIENT_ID },
+        body: options.body ? JSON.stringify(options.body) : undefined
+      });
+      let data = {};
+      try { data = await res.json(); } catch {}
+      if (!res.ok) {
+        const err = new Error(data.error || `HTTP ${res.status}`);
+        err.status = res.status;
+        err.data = data;
+        throw err;
+      }
+      return data;
+    }
+
+    function applyProfile(p) {
+      if (!p) return;
+      state.isPro = !!p.isPro;
+      state.freeCount = p.freeCount || 0;
+      state.cooldownUntil = p.cooldownUntil || 0;
+    }
+
+    function setServerStatus(ok) {
+      const dot = document.getElementById('apiStatusDot');
+      const txt = document.getElementById('apiStatusText');
+      if (!dot || !txt) return;
+      dot.className = 'w-2 h-2 rounded-full ' + (ok ? 'bg-accent shadow-glow-sm' : 'bg-red-500');
+      txt.textContent = ok ? 'Connected' : 'Offline';
+    }
+
+    const FREE_MAX_RESPONSES = 20;
+    const COOLDOWN_DURATION_MS = 30 * 60 * 1000;
+
+    const TIER_CONFIG = {
+      'nico-2.0': {
+        label: 'Nico 2.0',
+        pill: 'Standard',
+        maxPdfs: 1,
+        maxImages: 3,
+        locked: false
+      },
+      'nico-pro-3.5': {
+        label: 'Nico Pro 3.5',
+        pill: 'Pro',
+        maxPdfs: 2,
+        maxImages: 5,
+        locked: true
+      },
+      'nico-code': {
+        label: 'Nico Code Expert',
+        pill: 'Ultra',
+        maxPdfs: 4,
+        maxImages: 6,
+        locked: true
+      }
+    };
+
+    let state = {
+      isPro: false,
+      activeModel: localStorage.getItem('nico_active_model') || 'nico-2.0',
+      sessions: [],
+      currentSessionId: null,
+      freeCount: 0,
+      cooldownUntil: 0,
+      attachments: [],
+      isGenerating: false,
+      recognition: null,
+      isRecording: false,
+      speakingId: null
+    };
+
+    let cooldownInterval = null;
+
+    async function init() {
+      try {
+        const data = await api('/bootstrap');
+        applyProfile(data.profile);
+        state.sessions = data.chats;
+        setServerStatus(true);
+      } catch (err) {
+        setServerStatus(false);
+        showLimitAlert('Server se connect nahi ho paya. Backend chal raha hai? (' + err.message + ')');
+      }
+      if (!TIER_CONFIG[state.activeModel] || (!state.isPro && TIER_CONFIG[state.activeModel].locked)) {
+        state.activeModel = 'nico-2.0';
+      }
+      if (state.sessions.length === 0) {
+        createNewChat(false);
+      } else {
+        state.currentSessionId = state.sessions[0].id;
+      }
+      updateProUI();
+      updateModelUI();
+      renderSidebarHistory();
+      renderCurrentSession();
+      checkCooldownState();
+      setupSpeechRecognition();
+    }
+
+    function saveState() {
+      // Chats, history, Pro, limits sab server (Supabase) par hain. Sirf model choice local hai.
+      localStorage.setItem('nico_active_model', state.activeModel);
+    }
+
+    // Sidebar & Session Management
+    function toggleSidebar(open) {
+      const sb = document.getElementById('sidebar');
+      const bd = document.getElementById('sidebarBackdrop');
+      if (open) {
+        sb.classList.remove('-translate-x-full');
+        bd.classList.remove('hidden');
+      } else {
+        sb.classList.add('-translate-x-full');
+        bd.classList.add('hidden');
+      }
+    }
+
+    function createNewChat(render = true) {
+      const id = 'chat_' + crypto.randomUUID().replace(/-/g, '');
+      state.sessions.unshift({
+        id,
+        title: 'New Conversation',
+        messages: [],
+        updatedAt: Date.now()
+      });
+      state.currentSessionId = id;
+      state.attachments = [];
+      renderAttachments();
+      saveState();
+      if (render) {
+        renderSidebarHistory();
+        renderCurrentSession();
+        toggleSidebar(false);
+      }
+    }
+
+    function switchChat(id) {
+      state.currentSessionId = id;
+      state.attachments = [];
+      renderAttachments();
+      renderSidebarHistory();
+      renderCurrentSession();
+      toggleSidebar(false);
+    }
+
+    function deleteChat(e, id) {
+      e.stopPropagation();
+      state.sessions = state.sessions.filter(s => s.id !== id);
+      api('/chats/' + encodeURIComponent(id), { method: 'DELETE' }).catch(console.error);
+      if (state.sessions.length === 0) {
+        createNewChat(false);
+      } else if (state.currentSessionId === id) {
+        state.currentSessionId = state.sessions[0].id;
+      }
+      saveState();
+      renderSidebarHistory();
+      renderCurrentSession();
+    }
+
+    function clearCurrentChat() {
+      const session = getCurrentSession();
+      if (!session) return;
+      session.messages = [];
+      session.title = 'New Conversation';
+      api('/chats/' + encodeURIComponent(session.id) + '/clear', { method: 'POST' }).catch(console.error);
+      saveState();
+      renderSidebarHistory();
+      renderCurrentSession();
+    }
+
+    function getCurrentSession() {
+      return state.sessions.find(s => s.id === state.currentSessionId);
+    }
+
+    function renderSidebarHistory() {
+      const list = document.getElementById('chatHistoryList');
+      list.innerHTML = state.sessions.map(s => {
+        const active = s.id === state.currentSessionId;
+        return `
+          <div onclick="switchChat('${s.id}')" class="relative group flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer text-xs transition ${active ? 'bg-white/[0.07] text-white border border-white/[0.1] shadow-sm' : 'text-zinc-400 hover:bg-white/[0.03] hover:text-zinc-200 border border-transparent'}">
+            ${active ? '<span class="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-accent"></span>' : ''}
+            <div class="flex items-center gap-2 min-w-0 pr-2">
+              <svg class="w-3.5 h-3.5 shrink-0 ${active ? 'text-accent' : 'text-zinc-500'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              <span class="truncate font-medium">${escapeHtml(s.title)}</span>
+            </div>
+            <button onclick="deleteChat(event, '${s.id}')" aria-label="Delete session" class="opacity-0 group-hover:opacity-100 p-1 rounded-lg text-zinc-500 hover:text-accent hover:bg-white/[0.06] transition">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Model Selection & Pro Tier UI
+    function toggleModelDropdown() {
+      document.getElementById('modelDropdown').classList.toggle('hidden');
+    }
+
+    document.addEventListener('click', (e) => {
+      const wrap = document.getElementById('modelSelectorWrapper');
+      if (wrap && !wrap.contains(e.target)) {
+        document.getElementById('modelDropdown').classList.add('hidden');
+      }
+    });
+
+    function selectModel(modelKey) {
+      document.getElementById('modelDropdown').classList.add('hidden');
+      if (TIER_CONFIG[modelKey].locked && !state.isPro) {
+        openPricingModal();
+        return;
+      }
+      state.activeModel = modelKey;
+      saveState();
+      updateModelUI();
+    }
+
+    function updateModelUI() {
+      const cfg = TIER_CONFIG[state.activeModel];
+      document.getElementById('activeModelLabel').textContent = cfg.label;
+      document.getElementById('activeModelTierPill').textContent = cfg.pill;
+      Object.keys(TIER_CONFIG).forEach(k => {
+        const check = document.getElementById('check-' + k);
+        if (check) check.classList.toggle('hidden', k !== state.activeModel);
+      });
+    }
+
+    function updateProUI() {
+      const badge = document.getElementById('planBadge');
+      const upBtn = document.getElementById('upgradeSidebarBtn');
+      if (state.isPro) {
+        badge.textContent = 'PRO';
+        badge.className = 'text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-accent text-zinc-950';
+        upBtn.classList.add('hidden');
+        ['nico-pro-3.5', 'nico-code'].forEach(k => {
+          const b = document.getElementById('badge-' + k);
+          if (b) {
+            b.className = 'text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-accent/15 text-accent border border-accent/30 font-semibold';
+            b.textContent = 'UNLOCKED';
+          }
+        });
+      }
+    }
+
+    // Attachment Limits (Hidden until user exceeds limit)
+    function showLimitAlert(msg) {
+      const banner = document.getElementById('limitAlertBanner');
+      document.getElementById('limitAlertText').textContent = msg;
+      banner.classList.remove('hidden');
+    }
+
+    function dismissLimitAlert() {
+      document.getElementById('limitAlertBanner').classList.add('hidden');
+    }
+
+    async function handleFileUpload(event, type) {
+      const files = Array.from(event.target.files || []);
+      event.target.value = '';
+      if (!files.length) return;
+
+      const tier = TIER_CONFIG[state.activeModel];
+      let currentPdfs = state.attachments.filter(a => a.type === 'pdf').length;
+      let currentImages = state.attachments.filter(a => a.type === 'image').length;
+
+      for (const file of files) {
+        if (type === 'pdf') {
+          if (currentPdfs + 1 > tier.maxPdfs) {
+            showLimitAlert(`${tier.label} allows a maximum of ${tier.maxPdfs} PDF${tier.maxPdfs > 1 ? 's' : ''} per prompt.`);
+            break;
+          }
+          currentPdfs++;
+          const textExtract = await extractPdfPreviewText(file);
+          state.attachments.push({
+            id: 'att_' + Date.now() + Math.random(),
+            type: 'pdf',
+            name: file.name,
+            size: (file.size / 1024).toFixed(1) + ' KB',
+            textContent: textExtract
+          });
+        } else if (type === 'image') {
+          if (currentImages + 1 > tier.maxImages) {
+            showLimitAlert(`${tier.label} allows a maximum of ${tier.maxImages} image${tier.maxImages > 1 ? 's' : ''} per prompt.`);
+            break;
+          }
+          currentImages++;
+          const base64 = await compressImage(file);
+          state.attachments.push({
+            id: 'att_' + Date.now() + Math.random(),
+            type: 'image',
+            name: file.name,
+            dataUrl: base64
+          });
+        }
+      }
+      renderAttachments();
+    }
+
+    // Images ko chhota karte hain (max 1280px, JPEG) taake request Vercel ki 4.5MB limit mein rahe
+    function compressImage(file, maxDim = 1280, quality = 0.8) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+            const c = document.createElement('canvas');
+            c.width = Math.max(1, Math.round(img.width * scale));
+            c.height = Math.max(1, Math.round(img.height * scale));
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, c.width, c.height);
+            ctx.drawImage(img, 0, 0, c.width, c.height);
+            resolve(c.toDataURL('image/jpeg', quality));
+          };
+          img.onerror = () => resolve(reader.result);
+          img.src = reader.result;
+        };
+        reader.onerror = () => resolve('');
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function extractPdfPreviewText(file) {
+      try {
+        const buffer = await file.arrayBuffer();
+        const decoder = new TextDecoder('latin1');
+        const raw = decoder.decode(buffer);
+        const matches = raw.match(/\(([^()]{3,120})\)/g) || [];
+        const cleaned = matches.map(m => m.slice(1, -1)).join(' ').replace(/\s+/g, ' ').trim();
+        return cleaned ? cleaned.slice(0, 4000) : `[Attached PDF document: ${file.name}, size: ${(file.size / 1024).toFixed(1)} KB]`;
+      } catch {
+        return `[Attached PDF document: ${file.name}]`;
+      }
+    }
+
+    function removeAttachment(id) {
+      state.attachments = state.attachments.filter(a => a.id !== id);
+      dismissLimitAlert();
+      renderAttachments();
+    }
+
+    function renderAttachments() {
+      const bar = document.getElementById('attachmentPreviewBar');
+      if (state.attachments.length === 0) {
+        bar.classList.add('hidden');
+        bar.innerHTML = '';
+        return;
+      }
+      bar.classList.remove('hidden');
+      bar.innerHTML = state.attachments.map(att => {
+        if (att.type === 'image') {
+          return `
+            <div class="relative group rounded-xl overflow-hidden border border-white/15 bg-surface w-14 h-14 shadow-md">
+              <img src="${att.dataUrl}" class="w-full h-full object-cover" />
+              <button onclick="removeAttachment('${att.id}')" aria-label="Remove image" class="absolute top-1 right-1 w-4 h-4 rounded-full bg-black/80 text-white flex items-center justify-center hover:bg-accent hover:text-zinc-950 transition">
+                <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+          `;
+        }
+        return `
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl glass-panel border border-accent/30 text-xs shadow-sm">
+            <svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <span class="truncate max-w-[140px] text-zinc-200 font-medium">${escapeHtml(att.name)}</span>
+            <button onclick="removeAttachment('${att.id}')" aria-label="Remove PDF" class="text-zinc-400 hover:text-accent transition">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 20-Response Free Tier Limit & 30-Minute Countdown Timer
+    function checkCooldownState() {
+      if (state.isPro) {
+        unlockComposer();
+        return;
+      }
+      const now = Date.now();
+      if (state.cooldownUntil > now) {
+        lockComposerWithTimer();
+      } else if (state.cooldownUntil > 0 && state.cooldownUntil <= now) {
+        state.freeCount = 0;
+        state.cooldownUntil = 0;
+        saveState();
+        unlockComposer();
+      } else if (state.freeCount >= FREE_MAX_RESPONSES) {
+        state.cooldownUntil = now + COOLDOWN_DURATION_MS;
+        saveState();
+        lockComposerWithTimer();
+      } else {
+        unlockComposer();
+      }
+    }
+
+    function lockComposerWithTimer() {
+      const banner = document.getElementById('cooldownBanner');
+      const input = document.getElementById('promptInput');
+      const sendBtn = document.getElementById('sendBtn');
+      banner.classList.remove('hidden');
+      input.disabled = true;
+      input.placeholder = 'Free limit reached. Wait for timer or upgrade to Pro...';
+      sendBtn.disabled = true;
+
+      if (cooldownInterval) clearInterval(cooldownInterval);
+      const tick = () => {
+        const remaining = state.cooldownUntil - Date.now();
+        if (remaining <= 0) {
+          clearInterval(cooldownInterval);
+          state.freeCount = 0;
+          state.cooldownUntil = 0;
+          saveState();
+          unlockComposer();
+          return;
+        }
+        const mins = Math.floor(remaining / 60000);
+        const secs = Math.floor((remaining % 60000) / 1000);
+        document.getElementById('cooldownTimerDisplay').textContent =
+          `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      };
+      tick();
+      cooldownInterval = setInterval(tick, 1000);
+    }
+
+    function unlockComposer() {
+      if (cooldownInterval) clearInterval(cooldownInterval);
+      document.getElementById('cooldownBanner').classList.add('hidden');
+      const input = document.getElementById('promptInput');
+      const sendBtn = document.getElementById('sendBtn');
+      input.disabled = false;
+      input.placeholder = 'Message Nico AI, attach PDFs & images, or speak with voice...';
+      sendBtn.disabled = false;
+    }
+
+    // Backend call (AI key server par hai, DB bhi server save karta hai)
+    function queryBackend(promptText, attachedItems, session) {
+      return api('/chat', {
+        method: 'POST',
+        body: {
+          chatId: session.id,
+          title: session.title,
+          message: promptText,
+          model: state.activeModel,
+          attachments: attachedItems.map(a => ({
+            type: a.type, name: a.name, dataUrl: a.dataUrl, textContent: a.textContent
+          }))
+        }
+      });
+    }
+
+    // Sending & Rendering Messages
+    function useStarterPrompt(text) {
+      const input = document.getElementById('promptInput');
+      input.value = text;
+      autoResizeTextarea(input);
+      sendMessage();
+    }
+
+    function handleInputKeydown(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    }
+
+    function autoResizeTextarea(el) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+    }
+
+    async function sendMessage() {
+      if (state.isGenerating) return;
+      if (!state.isPro && state.cooldownUntil > Date.now()) return;
+
+      const input = document.getElementById('promptInput');
+      const text = input.value.trim();
+      if (!text && state.attachments.length === 0) return;
+
+      const promptToSend = text || 'Analyze the attached file(s).';
+      const currentAttachments = [...state.attachments];
+
+      const session = getCurrentSession();
+      if (session.messages.length === 0) {
+        session.title = promptToSend.slice(0, 34) + (promptToSend.length > 34 ? '...' : '');
+      }
+
+      session.messages.push({
+        id: 'msg_' + Date.now(),
+        role: 'user',
+        text: promptToSend,
+        attachments: currentAttachments.map(a => ({ type: a.type, name: a.name, dataUrl: a.dataUrl }))
+      });
+
+      input.value = '';
+      input.style.height = 'auto';
+      state.attachments = [];
+      dismissLimitAlert();
+      renderAttachments();
+      renderSidebarHistory();
+      renderCurrentSession();
+
+      state.isGenerating = true;
+      document.getElementById('sendBtn').disabled = true;
+      appendTypingBubble();
+
+      try {
+        const data = await queryBackend(promptToSend, currentAttachments, session);
+        removeTypingBubble();
+
+        session.messages.push({
+          id: data.messageId || ('msg_' + Date.now()),
+          role: 'ai',
+          model: data.model || TIER_CONFIG[state.activeModel].label,
+          text: data.reply
+        });
+
+        applyProfile(data.profile);
+        saveState();
+        renderCurrentSession();
+        checkCooldownState();
+        setServerStatus(true);
+      } catch (err) {
+        removeTypingBubble();
+        if (err.status === 429 && err.data && err.data.cooldownUntil) {
+          state.cooldownUntil = err.data.cooldownUntil;
+        }
+        session.messages.push({
+          id: 'msg_' + Date.now(),
+          role: 'ai',
+          model: TIER_CONFIG[state.activeModel].label,
+          text: `Error: ${err.message}`
+        });
+        if (err.status === undefined) setServerStatus(false);
+        saveState();
+        renderCurrentSession();
+        checkCooldownState();
+      } finally {
+        state.isGenerating = false;
+        if (state.isPro || state.cooldownUntil <= Date.now()) {
+          document.getElementById('sendBtn').disabled = false;
+        }
+      }
+    }
+
+    function appendTypingBubble() {
+      const container = document.getElementById('messagesContainer');
+      const div = document.createElement('div');
+      div.id = 'typingIndicator';
+      div.className = 'max-w-3xl mx-auto flex items-start gap-3.5 animate-message';
+      div.innerHTML = `
+        <div class="w-8 h-8 rounded-xl bg-accent/15 border border-accent/40 flex items-center justify-center text-accent shrink-0 shadow-glow-sm">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 21 7 21 17 12 22 3 17 3 7 12 2"/>
+          </svg>
+        </div>
+        <div class="px-4 py-3 rounded-2xl glass-card flex items-center gap-2.5">
+          <div class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-accent typing-dot"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-accent typing-dot"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-accent typing-dot"></span>
+          </div>
+          <span class="text-[11px] font-mono text-zinc-400">Thinking...</span>
+        </div>
+      `;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function removeTypingBubble() {
+      const el = document.getElementById('typingIndicator');
+      if (el) el.remove();
+    }
+
+    function renderCurrentSession() {
+      const container = document.getElementById('messagesContainer');
+      const welcome = WELCOME_EL; // stable reference (innerHTML se DOM se hat jata hai)
+      const session = getCurrentSession();
+
+      if (!session || session.messages.length === 0) {
+        container.innerHTML = '';
+        container.appendChild(welcome);
+        welcome.classList.remove('hidden');
+        return;
+      }
+
+      welcome.classList.add('hidden');
+      container.innerHTML = session.messages.map(msg => {
+        if (msg.role === 'user') {
+          const attHtml = (msg.attachments || []).map(a => {
+            if (a.type === 'image' && a.dataUrl) {
+              return `<img src="${a.dataUrl}" class="w-24 h-24 object-cover rounded-2xl border border-white/15 shadow-md" />`;
+            }
+            return `
+              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass-panel text-xs text-zinc-200 border border-accent/25">
+                <svg class="w-3.5 h-3.5 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                </svg>
+                ${escapeHtml(a.name)}
+              </span>
+            `;
+          }).join('');
+
+          return `
+            <div class="max-w-3xl mx-auto flex justify-end animate-message">
+              <div class="max-w-[85%] sm:max-w-[78%] space-y-2">
+                ${attHtml ? `<div class="flex flex-wrap justify-end gap-2">${attHtml}</div>` : ''}
+                <div class="px-4 py-3 rounded-2xl rounded-tr-sm bg-gradient-to-br from-elevated to-surface border border-accent/35 text-zinc-100 text-sm leading-relaxed shadow-md">
+                  ${escapeHtml(msg.text).replace(/\n/g, '<br>')}
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        const formattedBody = formatAiResponse(msg.text, msg.id);
+        const isSpeaking = state.speakingId === msg.id;
+        return `
+          <div class="max-w-3xl mx-auto flex items-start gap-3.5 animate-message">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-accent/25 to-accent/5 border border-accent/40 flex items-center justify-center text-accent shrink-0 mt-0.5 shadow-glow-sm">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 21 7 21 17 12 22 3 17 3 7 12 2"/>
+                <polyline points="21 7 12 12 3 7"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0 p-4 rounded-2xl rounded-tl-sm glass-card space-y-3 shadow-sm">
+              <div class="flex items-center justify-between border-b border-white/[0.06] pb-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-white">Nico AI</span>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-accent/12 text-accent border border-accent/25 font-semibold">${escapeHtml(msg.model || 'Nico 2.0')}</span>
+                </div>
+              </div>
+              <div class="prose-nico text-sm text-zinc-200 leading-relaxed space-y-3">
+                ${formattedBody}
+              </div>
+              <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-white/[0.06]">
+                <button onclick="copyFullMessage('${msg.id}', this)" class="px-2.5 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.07] text-[11px] font-medium text-zinc-300 hover:text-white flex items-center gap-1.5 transition">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                  <span>Copy Response</span>
+                </button>
+                <button onclick="toggleReadAloud('${msg.id}')" id="tts-btn-${msg.id}" class="px-2.5 py-1.5 rounded-xl ${isSpeaking ? 'bg-accent/15 border-accent/40 text-accent' : 'bg-white/[0.03] hover:bg-white/[0.08] border-white/[0.07] text-zinc-300 hover:text-accent'} border text-[11px] font-medium flex items-center gap-1.5 transition">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                  </svg>
+                  <span>${isSpeaking ? 'Stop Reading' : 'Read Aloud'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.scrollTop = container.scrollHeight;
+    }
+
+    // Markdown, Code Copy & Downloadable File Renderer
+    const codeBlockStore = {};
+
+    function formatAiResponse(rawText, msgId) {
+      const codeFenceRegex = /```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g;
+      let lastIndex = 0;
+      let htmlParts = [];
+      let match;
+      let blockIdx = 0;
+
+      while ((match = codeFenceRegex.exec(rawText)) !== null) {
+        const beforeText = rawText.slice(lastIndex, match.index);
+        if (beforeText.trim()) {
+          htmlParts.push(renderInlineMarkdown(beforeText));
+        }
+
+        const lang = (match[1] || 'txt').toLowerCase();
+        const code = match[2];
+        const blockId = `${msgId}_code_${blockIdx++}`;
+        codeBlockStore[blockId] = { lang, code };
+
+        htmlParts.push(`
+          <div class="my-3 rounded-2xl overflow-hidden border border-white/[0.09] bg-[#07070a] shadow-lg">
+            <div class="px-4 py-2.5 bg-white/[0.03] border-b border-white/[0.07] flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-accent/80"></span>
+                <span class="text-[11px] font-mono uppercase tracking-wider text-accent font-semibold">${escapeHtml(lang)}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="copyCodeBlock('${blockId}', this)" class="px-2.5 py-1 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.07] text-[11px] text-zinc-300 hover:text-white flex items-center gap-1.5 transition">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                  <span>Copy</span>
+                </button>
+                <button onclick="downloadCodeFile('${blockId}')" class="px-2.5 py-1 rounded-lg bg-accent/15 hover:bg-accent/25 border border-accent/35 text-[11px] font-medium text-accent flex items-center gap-1.5 transition">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                  <span>Download .${escapeHtml(mapLangExt(lang))}</span>
+                </button>
+              </div>
+            </div>
+            <pre class="p-4 text-xs text-zinc-200 overflow-x-auto leading-relaxed"><code>${escapeHtml(code)}</code></pre>
+          </div>
+        `);
+
+        lastIndex = codeFenceRegex.lastIndex;
+      }
+
+      const remaining = rawText.slice(lastIndex);
+      if (remaining.trim()) {
+        htmlParts.push(renderInlineMarkdown(remaining));
+      }
+
+      return htmlParts.join('');
+    }
+
+    function renderInlineMarkdown(text) {
+      let safe = escapeHtml(text.trim());
+      safe = safe.replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>');
+      safe = safe.replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded-md bg-white/[0.07] border border-white/[0.08] text-accentSoft text-xs">$1</code>');
+      safe = safe.replace(/^### (.+)$/gm, '<h4 class="text-sm font-bold text-white pt-1.5">$1</h4>');
+      safe = safe.replace(/^## (.+)$/gm, '<h3 class="text-base font-bold text-accent pt-1.5">$1</h3>');
+      safe = safe.replace(/\n/g, '<br>');
+      return `<p>${safe}</p>`;
+    }
+
+    function mapLangExt(lang) {
+      const map = {
+        javascript: 'js', js: 'js', typescript: 'ts', ts: 'ts',
+        python: 'py', py: 'py', html: 'html', css: 'css',
+        json: 'json', sql: 'sql', bash: 'sh', shell: 'sh',
+        csharp: 'cs', cs: 'cs', cpp: 'cpp', c: 'c', java: 'java'
+      };
+      return map[lang] || lang || 'txt';
+    }
+
+    function copyTextFallback(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+
+    function copyCodeBlock(blockId, btn) {
+      const item = codeBlockStore[blockId];
+      if (!item) return;
+      copyTextFallback(item.code);
+      const label = btn.querySelector('span');
+      const prev = label.textContent;
+      label.textContent = 'Copied';
+      label.classList.add('text-accent');
+      setTimeout(() => {
+        label.textContent = prev;
+        label.classList.remove('text-accent');
+      }, 1600);
+    }
+
+    function downloadCodeFile(blockId) {
+      const item = codeBlockStore[blockId];
+      if (!item) return;
+      const ext = mapLangExt(item.lang);
+      const blob = new Blob([item.code], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `nico-ai-output.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function copyFullMessage(msgId, btn) {
+      const session = getCurrentSession();
+      const msg = session?.messages.find(m => m.id === msgId);
+      if (!msg) return;
+      copyTextFallback(msg.text);
+      if (btn) {
+        const label = btn.querySelector('span');
+        label.textContent = 'Copied';
+        label.classList.add('text-accent');
+        setTimeout(() => {
+          label.textContent = 'Copy Response';
+          label.classList.remove('text-accent');
+        }, 1600);
+      }
+    }
+
+    // Voice Synthesis (Read Aloud) & Speech Dictation
+    function toggleReadAloud(msgId) {
+      if (!('speechSynthesis' in window)) return;
+      const session = getCurrentSession();
+      const msg = session?.messages.find(m => m.id === msgId);
+      if (!msg) return;
+
+      if (state.speakingId === msgId) {
+        window.speechSynthesis.cancel();
+        state.speakingId = null;
+        renderCurrentSession();
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+      const cleanSpeechText = msg.text.replace(/```[\s\S]*?```/g, ' Code block omitted. ').replace(/[*#`]/g, '');
+      const utterance = new SpeechSynthesisUtterance(cleanSpeechText);
+      utterance.rate = 1.02;
+      utterance.onend = () => {
+        state.speakingId = null;
+        renderCurrentSession();
+      };
+
+      state.speakingId = msgId;
+      renderCurrentSession();
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function setupSpeechRecognition() {
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRec) return;
+      const rec = new SpeechRec();
+      rec.continuous = false;
+      rec.interimResults = true;
+      rec.lang = 'en-US';
+
+      rec.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        const input = document.getElementById('promptInput');
+        input.value = transcript;
+        autoResizeTextarea(input);
+      };
+
+      rec.onend = () => {
+        state.isRecording = false;
+        const micBtn = document.getElementById('micBtn');
+        micBtn.classList.remove('recording-ring', 'text-accent', 'border-accent/40', 'bg-accent/10');
+        document.getElementById('micLabel').textContent = 'Voice';
+      };
+
+      state.recognition = rec;
+    }
+
+    function toggleVoiceDictation() {
+      if (!state.recognition) {
+        showLimitAlert('Speech recognition is not supported in this browser.');
+        return;
+      }
+      if (state.isRecording) {
+        state.recognition.stop();
+      } else {
+        state.isRecording = true;
+        const micBtn = document.getElementById('micBtn');
+        micBtn.classList.add('recording-ring', 'text-accent', 'border-accent/40', 'bg-accent/10');
+        document.getElementById('micLabel').textContent = 'Listening...';
+        state.recognition.start();
+      }
+    }
+
+    // Pricing Checkout Handlers
+    function openPricingModal() {
+      backToPlans();
+      document.getElementById('pricingModal').classList.remove('hidden');
+      document.getElementById('pricingModal').classList.add('flex');
+    }
+
+    function closePricingModal() {
+      document.getElementById('pricingModal').classList.add('hidden');
+      document.getElementById('pricingModal').classList.remove('flex');
+    }
+
+    function showCheckoutForm() {
+      document.getElementById('planSelectionStep').classList.add('hidden');
+      document.getElementById('checkoutFormStep').classList.remove('hidden');
+    }
+
+    function backToPlans() {
+      document.getElementById('checkoutFormStep').classList.add('hidden');
+      document.getElementById('planSelectionStep').classList.remove('hidden');
+    }
+
+    function formatCardNumber(input) {
+      let v = input.value.replace(/\D/g, '').slice(0, 16);
+      input.value = v.replace(/(.{4})/g, '$1 ').trim();
+    }
+
+    async function completeProUpgrade(e) {
+      e.preventDefault();
+      try {
+        // NOTE: card details server ko nahi bheji jaati. Real payment ke liye Stripe/Paddle lagayen.
+        const data = await api('/upgrade', { method: 'POST' });
+        applyProfile(data.profile);
+        saveState();
+        updateProUI();
+        unlockComposer();
+        closePricingModal();
+      } catch (err) {
+        showLimitAlert('Upgrade failed: ' + err.message);
+        closePricingModal();
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    init();
+  </script>
+</body>
+</html>
