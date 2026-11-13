@@ -30,7 +30,7 @@ for (const [k, v] of Object.entries({ 'AI_API_KEY (ya GROQ_API_KEY)': AI_API_KEY
   }
 }
 
-const FREE_MAX_RESPONSES = 20;
+const FREE_MAX_RESPONSES = 5;
 const COOLDOWN_MS = 30 * 60 * 1000;
 const HISTORY_LIMIT = 6;
 const MAX_MESSAGE_CHARS = 12000;

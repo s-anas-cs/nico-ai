@@ -483,7 +483,7 @@
             </div>
             <div>
               <div class="text-xs font-bold text-white flex items-center gap-2">
-                <span>Free Tier Limit Reached (20 Responses)</span>
+                <span>Free Tier Limit Reached (5 Responses)</span>
                 <span id="cooldownTimerDisplay" class="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-accent text-zinc-950">30:00</span>
               </div>
               <div class="text-[11px] text-zinc-300 mt-0.5">Wait for the 30-minute timer to reset or upgrade for instant unlimited access.</div>
@@ -695,7 +695,7 @@
       txt.textContent = ok ? 'Connected' : 'Offline';
     }
 
-    const FREE_MAX_RESPONSES = 20;
+    const FREE_MAX_RESPONSES = 5;
     const COOLDOWN_DURATION_MS = 30 * 60 * 1000;
 
     const TIER_CONFIG = {
