@@ -511,7 +511,7 @@
                 <span>Free Tier Limit Reached (5 Responses)</span>
                 <span id="cooldownTimerDisplay" class="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-accent text-zinc-950">30:00</span>
               </div>
-              <div class="text-[11px] text-zinc-300 mt-0.5">Wait for the 30-minute timer to reset or upgrade for instant unlimited access.</div>
+              <div class="text-[11px] text-zinc-300 mt-0.5">Wait for the 2-minute timer to reset or upgrade for instant unlimited access.</div>
             </div>
           </div>
           <button onclick="openPricingModal()" class="px-4 py-2 rounded-xl cta-yellow font-bold text-xs shrink-0 w-full sm:w-auto">
@@ -592,7 +592,7 @@
             <div class="text-3xl font-bold text-white mt-1.5">$0 <span class="text-xs font-normal text-zinc-500">/ forever</span></div>
             <ul class="mt-5 space-y-2.5 text-xs text-zinc-300">
               <li class="flex items-center gap-2"><svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg><span>Nico 2.0 Intelligence Model</span></li>
-              <li class="flex items-center gap-2"><svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg><span>5 responses per 30-min cycle</span></li>
+              <li class="flex items-center gap-2"><svg class="w-4 h-4 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg><span>5 responses per 2-min cycle</span></li>
             </ul>
           </div>
           <button onclick="closePricingModal()" class="mt-6 w-full py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.08] text-xs font-semibold text-zinc-300">Current Plan</button>
@@ -686,7 +686,7 @@
     }
 
     const FREE_MAX_RESPONSES = 5;
-    const COOLDOWN_DURATION_MS = 30 * 60 * 1000;
+    const COOLDOWN_DURATION_MS = 2 * 60 * 1000;
 
     const TIER_CONFIG = {
       'nico-2.0': { label: 'Nico 2.0', pill: 'Standard', maxPdfs: 1, maxImages: 3, locked: false },
