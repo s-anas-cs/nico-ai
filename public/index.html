@@ -724,11 +724,8 @@
       if (!TIER_CONFIG[state.activeModel] || (!state.isPro && TIER_CONFIG[state.activeModel].locked)) {
         state.activeModel = 'nico-2.0';
       }
-      if (state.sessions.length === 0) {
-        createNewChat(false);
-      } else {
-        state.currentSessionId = state.sessions[0].id;
-      }
+    createNewChat(false);
+
       updateProUI();
       updateModelUI();
       renderSidebarHistory();
