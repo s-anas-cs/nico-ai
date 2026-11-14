@@ -9,8 +9,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Fixed Marked.js CDN URL -->
+  <!-- Marked.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- html2pdf.js CDN for PDF Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -132,7 +134,6 @@
       40% { transform: scale(1); opacity: 1; }
     }
 
-    /* Clean Typography & Markdown Sequence Styling */
     .prose-nico {
       color: #f4f4f5;
       line-height: 1.7;
@@ -187,9 +188,60 @@
       color: #d4d4d8;
       font-style: italic;
     }
+
+    /* === INTRO SPLASH ANIMATION === */
+    @keyframes splashLogoPop {
+      0% { opacity: 0; transform: scale(0.75) translateY(12px); }
+      60% { opacity: 1; transform: scale(1.04) translateY(0); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes splashProgress {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+    .splash-logo-anim {
+      animation: splashLogoPop 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .splash-bar-anim {
+      animation: splashProgress 1.6s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+    }
+    #introSplash.splash-hide {
+      opacity: 0;
+      transform: scale(1.04);
+      pointer-events: none;
+    }
   </style>
 </head>
 <body class="h-[100dvh] w-screen flex select-none ambient-mesh overflow-hidden">
+
+  <!-- Intro Splash Screen -->
+  <div id="introSplash" class="fixed inset-0 z-[100] bg-[#060608] ambient-mesh flex flex-col items-center justify-center transition-all duration-700 ease-out">
+    <div class="splash-logo-anim flex flex-col items-center space-y-5">
+      <!-- Glowing Hexagon Logo -->
+      <div class="relative w-20 h-20">
+        <div class="absolute inset-0 rounded-3xl bg-accent/25 blur-2xl animate-pulse"></div>
+        <div class="relative w-full h-full rounded-3xl bg-gradient-to-b from-elevated to-surface border border-accent/50 flex items-center justify-center text-accent shadow-glow-md">
+          <svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 21 7 21 17 12 22 3 17 3 7 12 2"/>
+            <line x1="12" y1="22" x2="12" y2="12"/>
+            <polyline points="21 7 12 12 3 7"/>
+            <circle cx="12" cy="12" r="2.2" fill="currentColor"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Brand Title & Subtitle -->
+      <div class="text-center space-y-1">
+        <h2 class="text-2xl font-bold tracking-tight text-white">Nico <span class="text-accent">AI</span></h2>
+        <p class="text-[11px] font-mono uppercase tracking-[0.22em] text-zinc-400">Initializing Studio</p>
+      </div>
+
+      <!-- Smooth Yellow Loading Bar -->
+      <div class="w-44 h-1 rounded-full bg-white/[0.08] overflow-hidden">
+        <div class="h-full bg-gradient-to-r from-accentSoft via-accent to-accentDeep rounded-full splash-bar-anim"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- Mobile Sidebar Backdrop -->
   <div id="sidebarBackdrop" onclick="toggleSidebar(false)" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-30 hidden lg:hidden transition-opacity"></div>
@@ -724,7 +776,9 @@
       if (!TIER_CONFIG[state.activeModel] || (!state.isPro && TIER_CONFIG[state.activeModel].locked)) {
         state.activeModel = 'nico-2.0';
       }
-    createNewChat(false);
+
+      // Always open a brand new conversation on visit/reload while keeping past chats in history
+      createNewChat(false);
 
       updateProUI();
       updateModelUI();
@@ -732,6 +786,15 @@
       renderCurrentSession();
       checkCooldownState();
       setupSpeechRecognition();
+
+      // Hide Intro Splash Screen smoothly after animation
+      setTimeout(() => {
+        const splash = document.getElementById('introSplash');
+        if (splash) {
+          splash.classList.add('splash-hide');
+          setTimeout(() => splash.remove(), 700);
+        }
+      }, 1700);
     }
 
     function saveState() {
@@ -1263,7 +1326,7 @@
                   <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-accent/12 text-accent border border-accent/25 font-semibold truncate">${escapeHtml(msg.model || 'Nico 2.0')}</span>
                 </div>
               </div>
-              <div class="prose-nico text-sm text-zinc-200 leading-relaxed break-words overflow-x-auto">
+              <div id="msg-content-${msg.id}" class="prose-nico text-sm text-zinc-200 leading-relaxed break-words overflow-x-auto">
                 ${formattedBody}
               </div>
               <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-white/[0.06]">
@@ -1272,6 +1335,12 @@
                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                   </svg>
                   <span>Copy Response</span>
+                </button>
+                <button onclick="downloadMessageAsPdf('${msg.id}', this)" class="px-2.5 py-1.5 rounded-xl bg-accent/15 hover:bg-accent/25 border border-accent/35 text-[11px] font-medium text-accent flex items-center gap-1.5 transition">
+                  <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/>
+                  </svg>
+                  <span>Download PDF</span>
                 </button>
                 <button onclick="toggleReadAloud('${msg.id}')" id="tts-btn-${msg.id}" class="px-2.5 py-1.5 rounded-xl ${isSpeaking ? 'bg-accent/15 border-accent/40 text-accent' : 'bg-white/[0.03] hover:bg-white/[0.08] border-white/[0.07] text-zinc-300 hover:text-accent'} border text-[11px] font-medium flex items-center gap-1.5 transition">
                   <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1290,12 +1359,10 @@
 
     const codeBlockStore = {};
 
-    // Safe Markdown Parser (Uses marked.js if loaded, otherwise clean built-in fallback)
     function parseMarkdownSafe(text) {
       if (typeof marked !== 'undefined' && typeof marked.parse === 'function') {
         return marked.parse(text);
       }
-      // Fallback formatter if CDN fails
       let safe = escapeHtml(text.trim());
       safe = safe.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
       safe = safe.replace(/`([^`]+)`/g, '<code>$1</code>');
@@ -1370,7 +1437,7 @@
         javascript: 'js', js: 'js', typescript: 'ts', ts: 'ts',
         python: 'py', py: 'py', html: 'html', css: 'css',
         json: 'json', sql: 'sql', bash: 'sh', shell: 'sh',
-        csharp: 'cs', cs: 'cs', cpp: 'cpp', c: 'c', java: 'java'
+        csharp: 'cs', cs: 'cs', cpp: 'cpp', c: 'c', java: 'java', txt: 'txt'
       };
       return map[lang] || lang || 'txt';
     }
@@ -1429,6 +1496,48 @@
           label.classList.remove('text-accent');
         }, 1600);
       }
+    }
+
+    // Function to download AI response as PDF
+    function downloadMessageAsPdf(msgId, btn) {
+      const session = getCurrentSession();
+      const msg = session?.messages.find(m => m.id === msgId);
+      if (!msg) return;
+
+      const element = document.createElement('div');
+      element.style.padding = '30px';
+      element.style.background = '#ffffff';
+      element.style.color = '#111827';
+      element.style.fontFamily = '"Plus Jakarta Sans", sans-serif';
+      element.style.fontSize = '14px';
+      element.style.lineHeight = '1.7';
+
+      let htmlContent = `
+        <div style="border-bottom: 2px solid #fde047; padding-bottom: 12px; margin-bottom: 20px;">
+          <h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #111827;">Nico AI Export</h2>
+          <p style="margin: 4px 0 0 0; font-size: 11px; color: #6b7280; text-transform: uppercase; font-family: monospace;">Model: ${escapeHtml(msg.model || 'Nico 2.0')}</p>
+        </div>
+        <div>${formatAiResponse(msg.text, msg.id)}</div>
+      `;
+      element.innerHTML = htmlContent;
+
+      const opt = {
+        margin:       12,
+        filename:     `nico-ai-document-${Date.now()}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      const btnLabel = btn.querySelector('span');
+      const prevText = btnLabel.textContent;
+      btnLabel.textContent = 'Generating PDF...';
+
+      html2pdf().from(element).set(opt).save().then(() => {
+        btnLabel.textContent = prevText;
+      }).catch(() => {
+        btnLabel.textContent = prevText;
+      });
     }
 
     function toggleReadAloud(msgId) {
